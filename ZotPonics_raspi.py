@@ -1,3 +1,10 @@
+"""
+Authors: Sid Lau, Jason Lim, Kathy Nguyen, Owen Yang
+Organization: ZotPonics Inc.
+Notes:
+- Database is "zotponics.db" for now.
+"""
+
 import sqlite3
 import datetime
 import time
@@ -8,26 +15,65 @@ class ZotPonics():
         self.tempMin = 60 #Fahrenheit
         #======Data base variables======
         self.sensorFreq = 300 #seconds
+
         self.lightStartTime = 8 #int in 24hr format
         self.lightEndTime = 18 #int in 24hr format
+
         self.humidityMax = 80 #percentage
+
         self.tempMax = 100 #Fahrenheit
+
         self.wateringFreq = 300 #seconds
-        self.wateringDuration = 10 #seconds
+        self.wateringDuration = 100 #seconds
+
         self.startNutrientRatio = 30 #percentage
+
+        #=======User Activated Variables========
+        self.lightOn = False
+        self.vent = False
+        self.fan = False
+        self.water = False
+
         #======control Logic Variables======
         self.lightTimer = time.time()
 
     def run(self):
         while True:
-            sensorData = self.sensorCollect()
+            #======DATA COLLECTION=======
+            sensorData = self.sensorCollect() #this is a list  of (timestamp,temperature,humidity,baseLevel)
+
+            #======CONTROL GROWTH FACTORS=====
+            self.controlGrowthFactors(sensorData)
+
+            #======READ USER ACTIVIATED CONTROLS=========
+            self.readUserActControls()
+            #=======IDLE STATE=========
             break #just for testing
 
+    def controlGrowthFactors(self,sensorData):
+        """
+        sensorData<tuple>: this is a list  of (timestamp,temperature,humidity,baseLevel)
+        """
+        #----Check temp and fan control vent control------
+        #----Check humidity and vent control-----
+        #----Check base level and dispense reserves-------
+        #----Check reserves and notify--------
+        pass
+    def readUserActControls(self):
+        """
+        This will be determined later by how we interface the mobile app.
+        """
+        pass
+    def readUserControlFactors(self):
+        """
+        """
+        pass
     def sensorCollect(self,temperSim=False,humidSim=False,baseLevelSim=False,ecSim=False):
         """
-        temperSim<bool>:
-        humidSim<bool>:
-        baseLevelSim<bool>:
+        This is the main function for sensor data collections
+        temperSim<bool>: If True, just return 0.0 for the the temperature data.
+        humidSim<bool>: If True, just return 0.0 for the the humidity data
+        baseLevelSim<bool>: If True, just return 0.0 for the the base level data
         """
         #===========Data Collection=============
         #------Temperature Data (C)--------
