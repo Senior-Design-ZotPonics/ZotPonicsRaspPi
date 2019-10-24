@@ -13,6 +13,7 @@ class ZotPonics():
     def __init__(self):
         #======Variables that should not be changed=======
         self.tempMin = 60 #Fahrenheit
+
         #======Data base variables======
         self.sensorFreq = 300 #seconds
 
@@ -28,7 +29,7 @@ class ZotPonics():
 
         self.startNutrientRatio = 30 #percentage
 
-        #=======User Activated Variables========
+        #=======User and sensor activated Variables========
         self.lightOn = False
         self.vent = False
         self.fan = False
@@ -59,15 +60,61 @@ class ZotPonics():
         #----Check base level and dispense reserves-------
         #----Check reserves and notify--------
         pass
+
     def readUserActControls(self):
         """
         This will be determined later by how we interface the mobile app.
+        Right now to simulate this we will just have another table in
+        zotbins.db
+        Immediate Control Values will include:
+        - fan+vents
+        - just vents
+        - lights
+        - water
+
+        There will be only 2 options that can be entered
+        There will be 3 options that can be entered in as a value for the
+        other variables.
+        - NULL: No Action
+        - 1: Turn On
+        - 2: Turn Off
+
+        The table must also include only one row.
         """
-        pass
+        conn = sqlite3.connect("zotponics.db")
+        conn.execute('''CREATE TABLE IF NOT EXISTS "IMMEDIATE_INPUTS" (
+            "ISCHANGED" BIT,
+            "FAN" BIT,
+            "VENTS" BIT,
+            "LIGHTS" BIT,
+            "WATER" BIT
+        );
+        ''')
+        conn.execute("INSERT INTO SENSOR_DATA (TIMESTAMP,TEMPERATURE,HUMIDITY,BASE_LEVEL)\nVALUES ('{}',{},{},{})".format(timestamp,temperature,humidity,base_level))
+        conn.commit()
+        conn.close()
+
     def readUserControlFactors(self):
         """
+        This will read the user control growth factors.
+
+        The table used for this must only include one row.
         """
-        pass
+        conn = sqlite3.connect("zotponics.db")
+        conn.execute('''CREATE TABLE IF NOT EXISTS "CONTROLFACTORS" (
+            "ISCHANGED" BIT,
+            "LIGHTSTARTTIME" REAL,
+            "LIGHTENDTIME" REAL,
+            "HUMDITY" REAL,
+            "TEMPERATURE" REAL,
+            "WATERINGFREQ" REAL,
+            "NUTRIENTRATIO" REAL
+        );
+        ''')
+        conn.execute()
+        conn.commit()
+        conn.close()
+
     def sensorCollect(self,temperSim=False,humidSim=False,baseLevelSim=False,ecSim=False):
         """
         This is the main function for sensor data collections
