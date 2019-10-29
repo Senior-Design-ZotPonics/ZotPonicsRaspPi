@@ -41,13 +41,15 @@ class ZotPonics():
     def run(self):
         while True:
             #======DATA COLLECTION=======
-            sensorData = self.sensorCollect() #this is a list  of (timestamp,temperature,humidity,baseLevel)
+            sensorData = self.sensorCollect() #this is a list  of (timestamp,temperature,humidity,baseLevel) #also updates the database
 
             #======CONTROL GROWTH FACTORS=====
             self.controlGrowthFactors(sensorData)
 
             #======READ USER ACTIVIATED CONTROLS=========
-            self.readUserActControls()
+            ## Skip this for now
+            # self.readUserActControls()
+
             #=======IDLE STATE=========
             break #just for testing
 
@@ -63,6 +65,7 @@ class ZotPonics():
 
     def readUserActControls(self):
         """
+        <oky>: FOCUS ON THIS LATER
         This will be determined later by how we interface the mobile app.
         Right now to simulate this we will just have another table in
         zotbins.db
@@ -98,26 +101,34 @@ class ZotPonics():
         """
         This will read the user control growth factors.
 
-        The table used for this must only include one row.
+        The table used for this must only include one row and include
+        the following columns:
+        - "LIGHTSTARTTIME" REAL,
+        - "LIGHTENDTIME" REAL,
+        - "HUMDITY" REAL,
+        - "TEMPERATURE" REAL,
+        - "WATERINGFREQ" REAL,
+        - "NUTRIENTRATIO" REAL
         """
-        conn = sqlite3.connect("zotponics.db")
-        conn.execute('''CREATE TABLE IF NOT EXISTS "CONTROLFACTORS" (
-            "ISCHANGED" BIT,
-            "LIGHTSTARTTIME" REAL,
-            "LIGHTENDTIME" REAL,
-            "HUMDITY" REAL,
-            "TEMPERATURE" REAL,
-            "WATERINGFREQ" REAL,
-            "NUTRIENTRATIO" REAL
-        );
-        ''')
-        conn.execute()
-        conn.commit()
-        conn.close()
+        # conn = sqlite3.connect("zotponics.db")
+        #
+        # # conn.execute('''CREATE TABLE IF NOT EXISTS "CONTROLFACTORS" (
+        # #     "LIGHTSTARTTIME" REAL,
+        # #     "LIGHTENDTIME" REAL,
+        # #     "HUMDITY" REAL,
+        # #     "TEMPERATURE" REAL,
+        # #     "WATERINGFREQ" REAL,
+        # #     "NUTRIENTRATIO" REAL
+        # # );
+        # # ''')
+        # # conn.execute()
+        # # conn.commit()
+        # # conn.close()
 
     def sensorCollect(self,temperSim=False,humidSim=False,baseLevelSim=False,ecSim=False):
         """
-        This is the main function for sensor data collections
+        This is the main function for sensor data collections. It updates the database and
+        returns the outputs as a tuple.
         temperSim<bool>: If True, just return 0.0 for the the temperature data.
         humidSim<bool>: If True, just return 0.0 for the the humidity data
         baseLevelSim<bool>: If True, just return 0.0 for the the base level data
