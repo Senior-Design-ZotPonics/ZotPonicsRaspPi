@@ -43,12 +43,18 @@ class ZotPonics():
             #======DATA COLLECTION=======
             sensorData = self.sensorCollect() #this is a list  of (timestamp,temperature,humidity,baseLevel) #also updates the database
 
-            #======CONTROL GROWTH FACTORS=====
+            #======READ CONTROl GROWTH FACTORS====
+            _, self.lightStartTime, self.lightEndTime, self.humidityMax, self.tempMax, self.wateringFreq, self.wateringDuration = self.readUserControlFactors()
+
+            print(self.lightStartTime, self.lightEndTime, self.humidityMax, self.tempMax, self.wateringFreq, self.wateringDuration)
+
+            #====== APPLY CONTROL GROWTH FACTORS LOGIC=====
             self.controlGrowthFactors(sensorData)
 
             #======READ USER ACTIVIATED CONTROLS=========
-            ## Skip this for now
-            # self.readUserActControls()
+            userAct = self.readUserActControls()
+            print(userAct)
+
 
             #=======IDLE STATE=========
             break #just for testing
@@ -63,67 +69,63 @@ class ZotPonics():
         #----Check reserves and notify--------
         pass
 
+    def readUserControlFactors(self):
+        """
+        This will read the user control growth factors and return the values
+        sepcified in the table "CONTROLFACTORS".
+
+        The table ("CONTROLFACTORS") contains the following columns:
+        - "TIMESTAMP" TEXT NOT NULL,
+        - "LIGHTSTARTTIME"    REAL,
+        - "LIGHTENDTIME"  REAL,
+        - "HUMIDITY"   REAL,
+        - "TEMPERATURE"   REAL,
+        - "WATERINGFREQ"  REAL,
+        - "NUTRIENTRATIO" REAL
+        """
+        row = (None,self.lightStartTime,self.lightEndTime,self.humidityMax,self.tempMax,self.wateringFreq,self.wateringDuration)
+        try:
+            conn = sqlite3.connect("zotponics.db")
+            cursor = conn.execute("SELECT * FROM CONTROLFACTORS ORDER BY TIMESTAMP DESC LIMIT 1")
+            row = next(cursor)
+        except StopIteration:
+            #this means that the table is empty, don't do anything
+            pass
+        finally:
+            conn.close()
+        return row
+
     def readUserActControls(self):
         """
         <oky>: FOCUS ON THIS LATER
         This will be determined later by how we interface the mobile app.
         Right now to simulate this we will just have another table in
         zotbins.db
-        Immediate Control Values will include:
-        - fan+vents
-        - just vents
-        - lights
-        - water
 
-        There will be only 2 options that can be entered
-        There will be 3 options that can be entered in as a value for the
-        other variables.
-        - NULL: No Action
-        - 1: Turn On
-        - 2: Turn Off
+        Immediate Control Values will include:
+        - fan+vents for (for 10 seconds)
+        - just vents (for 10 seconds)
+        - lights (for 10 seconds)
+        - water (for 10 seconds)
 
         The table must also include only one row.
         """
-        conn = sqlite3.connect("zotponics.db")
-        conn.execute('''CREATE TABLE IF NOT EXISTS "IMMEDIATE_INPUTS" (
-            "ISCHANGED" BIT,
-            "FAN" BIT,
-            "VENTS" BIT,
-            "LIGHTS" BIT,
-            "WATER" BIT
-        );
-        ''')
-        conn.execute("INSERT INTO SENSOR_DATA (TIMESTAMP,TEMPERATURE,HUMIDITY,BASE_LEVEL)\nVALUES ('{}',{},{},{})".format(timestamp,temperature,humidity,base_level))
-        conn.commit()
-        conn.close()
+        row=(0,0,0,0)
+        try:
+            conn = sqlite3.connect("zotponics.db")
+            cursor = conn.execute("SELECT * FROM USERDEMO LIMIT 1")
+            row = next(cursor)
 
-    def readUserControlFactors(self):
-        """
-        This will read the user control growth factors.
+            #delete all rows in the table so it doesn't activate again
+            conn.execute("DELETE FROM USERDEMO")
+            conn.commit()
 
-        The table used for this must only include one row and include
-        the following columns:
-        - "LIGHTSTARTTIME" REAL,
-        - "LIGHTENDTIME" REAL,
-        - "HUMDITY" REAL,
-        - "TEMPERATURE" REAL,
-        - "WATERINGFREQ" REAL,
-        - "NUTRIENTRATIO" REAL
-        """
-        # conn = sqlite3.connect("zotponics.db")
-        #
-        # # conn.execute('''CREATE TABLE IF NOT EXISTS "CONTROLFACTORS" (
-        # #     "LIGHTSTARTTIME" REAL,
-        # #     "LIGHTENDTIME" REAL,
-        # #     "HUMDITY" REAL,
-        # #     "TEMPERATURE" REAL,
-        # #     "WATERINGFREQ" REAL,
-        # #     "NUTRIENTRATIO" REAL
-        # # );
-        # # ''')
-        # # conn.execute()
-        # # conn.commit()
-        # # conn.close()
+        except StopIteration:
+            #this means that the table is empty, nothing should be activated
+            pass
+        finally:
+            conn.close()
+        return row
 
     def sensorCollect(self,temperSim=False,humidSim=False,baseLevelSim=False,ecSim=False):
         """

@@ -25,7 +25,6 @@ def UserInputFactor(lightstart=8,lightend=22,humidity=80,temp=100,waterfreq=300,
             "NUTRIENTRATIO" REAL
         );
         ''')
-        conn.commit()
         conn.execute("INSERT INTO CONTROLFACTORS (TIMESTAMP,LIGHTSTARTTIME,LIGHTENDTIME,HUMIDITY,TEMPERATURE,WATERINGFREQ,NUTRIENTRATIO)\nVALUES ('{}',{},{},{},{},{},{})".format(timestamp,lightstart,lightend,humidity,temp,waterfreq,nutrientratio))
 
         conn.commit()
@@ -37,7 +36,6 @@ def randomUserInputFactors(n=10,sleepTime=5):
     n<int>: the number of times we want to imput
     sleepTime<int>: the duration of sleeping between each post
     """
-
     for i in range(n):
         #generate the random integers
         lightStart = randint(0,12)
@@ -53,5 +51,25 @@ def randomUserInputFactors(n=10,sleepTime=5):
         #add some delay
         time.sleep(sleepTime)
 
+def UserActivateControl(fans=0,vents=1,lights=0,water=1):
+    """
+    This function is for the demo mode where users can activate the control
+    growth factors
+    """
+    try:
+        conn = sqlite3.connect("zotponics.db")
+        conn.execute('''CREATE TABLE IF NOT EXISTS "USERDEMO" (
+            "FAN" BIT,
+            "VENTS" BIT,
+            "LIGHTS" BIT,
+            "WATER" BIT
+        );
+        ''')
+        conn.execute("INSERT INTO USERDEMO (FAN,VENTS,LIGHTS,WATER)\nVALUES ({},{},{},{})".format(fans,vents,lights,water))
+        conn.commit()
+    finally:
+        conn.close()
+
 if __name__ == "__main__":
-    randomUserInputFactors()
+    #randomUserInputFactors()
+    UserActivateControl()
