@@ -3,7 +3,7 @@ import datetime
 import sqlite3
 from random import randint
 
-def UserInputFactor(lightstart=8,lightend=22,humidity=80,temp=100,waterfreq=300,nutrientratio=80):
+def UserInputFactor(lightstart=8,lightend=22,humidity=80,temp=100,waterfreq=300,nutrientratio=80,baselevel=10):
     """
     lightstart<int>
     lightend<int>
@@ -22,10 +22,11 @@ def UserInputFactor(lightstart=8,lightend=22,humidity=80,temp=100,waterfreq=300,
             "HUMIDITY"   REAL,
             "TEMPERATURE"   REAL,
             "WATERINGFREQ"  REAL,
-            "NUTRIENTRATIO" REAL
+            "NUTRIENTRATIO" REAL,
+            "BASELEVEL" REAL
         );
         ''')
-        conn.execute("INSERT INTO CONTROLFACTORS (TIMESTAMP,LIGHTSTARTTIME,LIGHTENDTIME,HUMIDITY,TEMPERATURE,WATERINGFREQ,NUTRIENTRATIO)\nVALUES ('{}',{},{},{},{},{},{})".format(timestamp,lightstart,lightend,humidity,temp,waterfreq,nutrientratio))
+        conn.execute("INSERT INTO CONTROLFACTORS (TIMESTAMP,LIGHTSTARTTIME,LIGHTENDTIME,HUMIDITY,TEMPERATURE,WATERINGFREQ,NUTRIENTRATIO,BASELEVEL)\nVALUES ('{}',{},{},{},{},{},{},{})".format(timestamp,lightstart,lightend,humidity,temp,waterfreq,nutrientratio,baselevel))
 
         conn.commit()
     finally:
@@ -42,16 +43,17 @@ def randomUserInputFactors(n=10,sleepTime=5):
         lightEnd   = randint(13,23)
         humidityMax = randint(0,100)
         tempMax = randint(0,100)
-        wateringFreq = randint(0,300)
         wateringDuration = randint(0,500)
 
+        wateringFreq = randint(0,300)
+        baseLevel = randint(0,20)
         #input the random integers into the data base
-        UserInputFactor(lightStart,lightEnd,humidityMax,tempMax,wateringFreq,wateringDuration)
+        UserInputFactor(lightStart,lightEnd,humidityMax,tempMax,wateringFreq,wateringDuration,baseLevel)
 
         #add some delay
         time.sleep(sleepTime)
 
-def UserActivateControl(fans=0,vents=1,lights=0,water=1):
+def UserActivateControl(fans=0,vents=1,lights=0,water=1,notify=1):
     """
     This function is for the demo mode where users can activate the control
     growth factors
@@ -62,14 +64,15 @@ def UserActivateControl(fans=0,vents=1,lights=0,water=1):
             "FAN" BIT,
             "VENTS" BIT,
             "LIGHTS" BIT,
-            "WATER" BIT
+            "WATER" BIT,
+            "BASELEVELNOTIFY" BIT
         );
         ''')
-        conn.execute("INSERT INTO USERDEMO (FAN,VENTS,LIGHTS,WATER)\nVALUES ({},{},{},{})".format(fans,vents,lights,water))
+        conn.execute("INSERT INTO USERDEMO (FAN,VENTS,LIGHTS,WATER,BASELEVELNOTIFY)\nVALUES ({},{},{},{},{})".format(fans,vents,lights,water,notify))
         conn.commit()
     finally:
         conn.close()
 
 if __name__ == "__main__":
-    #randomUserInputFactors()
+    randomUserInputFactors()
     UserActivateControl()
