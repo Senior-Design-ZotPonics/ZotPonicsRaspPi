@@ -13,6 +13,7 @@ class ZotPonics():
     def __init__(self):
         #======Variables that should not be changed=======
         self.tempMin = 60 #Fahrenheit
+
         #======Data base variables======
         self.sensorFreq = 300 #seconds
 
@@ -28,7 +29,7 @@ class ZotPonics():
 
         self.startNutrientRatio = 30 #percentage
 
-        #=======User Activated Variables========
+        #=======User and sensor activated Variables========
         self.lightOn = False
         self.vent = False
         self.fan = False
@@ -40,13 +41,21 @@ class ZotPonics():
     def run(self):
         while True:
             #======DATA COLLECTION=======
-            sensorData = self.sensorCollect() #this is a list  of (timestamp,temperature,humidity,baseLevel)
+            sensorData = self.sensorCollect() #this is a list  of (timestamp,temperature,humidity,baseLevel) #also updates the database
 
-            #======CONTROL GROWTH FACTORS=====
+            #======READ CONTROl GROWTH FACTORS====
+            _, self.lightStartTime, self.lightEndTime, self.humidityMax, self.tempMax, self.wateringFreq, self.wateringDuration = self.readUserControlFactors()
+
+            print(self.lightStartTime, self.lightEndTime, self.humidityMax, self.tempMax, self.wateringFreq, self.wateringDuration)
+
+            #====== APPLY CONTROL GROWTH FACTORS LOGIC=====
             self.controlGrowthFactors(sensorData)
 
             #======READ USER ACTIVIATED CONTROLS=========
-            self.readUserActControls()
+            userAct = self.readUserActControls()
+            print(userAct)
+
+
             #=======IDLE STATE=========
             break #just for testing
 
@@ -59,18 +68,69 @@ class ZotPonics():
         #----Check base level and dispense reserves-------
         #----Check reserves and notify--------
         pass
-    def readUserActControls(self):
-        """
-        This will be determined later by how we interface the mobile app.
-        """
-        pass
+
     def readUserControlFactors(self):
         """
+        This will read the user control growth factors and return the values
+        sepcified in the table "CONTROLFACTORS".
+
+        The table ("CONTROLFACTORS") contains the following columns:
+        - "TIMESTAMP" TEXT NOT NULL,
+        - "LIGHTSTARTTIME"    REAL,
+        - "LIGHTENDTIME"  REAL,
+        - "HUMIDITY"   REAL,
+        - "TEMPERATURE"   REAL,
+        - "WATERINGFREQ"  REAL,
+        - "NUTRIENTRATIO" REAL
         """
-        pass
+        row = (None,self.lightStartTime,self.lightEndTime,self.humidityMax,self.tempMax,self.wateringFreq,self.wateringDuration)
+        try:
+            conn = sqlite3.connect("zotponics.db")
+            cursor = conn.execute("SELECT * FROM CONTROLFACTORS ORDER BY TIMESTAMP DESC LIMIT 1")
+            row = next(cursor)
+        except StopIteration:
+            #this means that the table is empty, don't do anything
+            pass
+        finally:
+            conn.close()
+        return row
+
+    def readUserActControls(self):
+        """
+        <oky>: FOCUS ON THIS LATER
+        This will be determined later by how we interface the mobile app.
+        Right now to simulate this we will just have another table in
+        zotbins.db
+
+        Immediate Control Values will include:
+        - fan+vents for (for 10 seconds)
+        - just vents (for 10 seconds)
+        - lights (for 10 seconds)
+        - water (for 10 seconds)
+
+        The table must also include only one row.
+        """
+        row=(0,0,0,0)
+        try:
+            conn = sqlite3.connect("zotponics.db")
+            cursor = conn.execute("SELECT * FROM USERDEMO LIMIT 1")
+            row = next(cursor)
+
+            #delete all rows in the table so it doesn't activate again
+            conn.execute("DELETE FROM USERDEMO")
+            conn.commit()
+
+        except StopIteration:
+            #this means that the table is empty, nothing should be activated
+            pass
+        finally:
+            conn.close()
+        return row
+
     def sensorCollect(self,temperSim=False,humidSim=False,baseLevelSim=False,ecSim=False):
         """
-        This is the main function for sensor data collections
+        This is the main function for sensor data collections. It updates the database and
+        returns the outputs as a tuple.
         temperSim<bool>: If True, just return 0.0 for the the temperature data.
         humidSim<bool>: If True, just return 0.0 for the the humidity data
         baseLevelSim<bool>: If True, just return 0.0 for the the base level data
