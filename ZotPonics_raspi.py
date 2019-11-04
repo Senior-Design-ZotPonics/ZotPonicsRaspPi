@@ -57,7 +57,6 @@ class ZotPonics():
             userAct = self.readUserActControls()
             print(userAct)
 
-
             #=======IDLE STATE=========
             break #just for testing
 
