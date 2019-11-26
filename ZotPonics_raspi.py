@@ -3,19 +3,25 @@ Authors: Sid Lau, Jason Lim, Kathy Nguyen, Owen Yang
 Organization: ZotPonics Inc.
 Notes:
 - Database is "zotponics.db" for now.
+Resources:
+- Controlling a Servo
+    - https://www.learnrobotics.org/blog/raspberry-pi-servo-motor/
 """
 
 import sqlite3
 import datetime
 import time
 
+
 class ZotPonics():
     def __init__(self):
-        #======Variables that should not be changed=======
-        self.tempMin = 60 #Fahrenheit
+        #======Variables that should not be changed==========
+        self.tempMin = 60 #Fahrenheit #<oky>: Not used, because we don't have heating element
 
-        #======Data base variables======
-        self.sensorFreq = 300 #seconds
+        #======GPIO Variables that should not be changed=====
+
+        #======Data base variabxles======
+        self.sensorFreq = 300 #seconds #<oky>: Not used yet
 
         self.lightStartTime = 8 #int in 24hr format
         self.lightEndTime = 18 #int in 24hr format
@@ -40,7 +46,31 @@ class ZotPonics():
         #======control Logic Variables======
         self.lightTimer = time.time()
 
-    def run(self):
+
+    def setupGPIO(self,simulateAll=False):
+        """
+        Function to help simulate the sensors and manage GPIO import
+        """
+        if simulateAll:
+            pass
+        else:
+            import RPi.GPIO as GPIO
+
+
+    def run(self,simulateAll=False,temperSim=False,humidSim=False,baseLevelSim=False,ecSim=False):
+        """
+        This is the main function for running all the data collection logic,
+        data base reading, control growth logic, and idle state logic.
+
+        temperSim<bool>: If True, just return 0.0 for the the temperature data.
+        humidSim<bool>: If True, just return 0.0 for the the humidity data
+        baseLevelSim<bool>: If True, just return 0.0 for the the base level data
+        """
+        #========== GPIO and/or Simulation Logic Setup=============
+        if (simulateAll==True): temperSim, humidSim, baseLevelSim = True, True, True
+        self.setupGPIO(simulateAll)
+
+        #========== Main Loop ================
         while True:
             #======DATA COLLECTION=======
             sensorData = self.sensorCollect() #this is a list  of (timestamp,temperature,humidity,baseLevel) #also updates the database
@@ -85,7 +115,9 @@ class ZotPonics():
 
     def temperData(self,simulate):
         """
-        simulate<bool>:
+        Collects temperature data. User has the option to simulate the data
+        if no physical sensor exists.
+        simulate<bool>: If True, just return 0.0 for the the temperature data.
         """
         if simulate:
             return 0.0
@@ -95,7 +127,9 @@ class ZotPonics():
 
     def humidData(self,simulate):
         """
-        simulate<bool>:
+        Collects humidity data. User has the option to simulate the data if
+        no physical sensor exists.
+        simulate<bool>: If True, just return 0.0.
         """
         if simulate:
             return 0.0
@@ -105,6 +139,8 @@ class ZotPonics():
 
     def baseLevelData(self,simulate):
         """
+        Collects the base water level Data. User has the option to simulate the
+        data if no physical sensor exits.
         simulate<bool>:
         """
         if simulate:
@@ -115,7 +151,11 @@ class ZotPonics():
 
     def updateDatabase(self,timestamp,temperature,humidity,base_level):
         """
-        Temporarily adding to sqlite, will add to MySQL
+        Temporarily adding to sqlite, will add to MySQL.
+        timestamp<str>: timestamp in the format '%Y-%m-%d %H:%M:%S'
+        temperature<float>: the read temperature value
+        humidity<float>: the read humidity value
+        base_level<float>: the read base water level value
         """
         conn = sqlite3.connect("zotponics.db")
         conn.execute('''CREATE TABLE IF NOT EXISTS "SENSOR_DATA" (
@@ -277,4 +317,4 @@ class ZotPonics():
 
 if __name__ == "__main__":
     zot = ZotPonics()
-    zot.run()
+    zot.run(simulateAll=True,temperSim=False,humidSim=False,baseLevelSim=False,ecSim=False)
