@@ -1,7 +1,3 @@
-#Resources:
-#- https://www.electronicshub.org/raspberry-pi-servo-motor-interface-tutorial/
-#- https://www.learnrobotics.org/blog/raspberry-pi-servo-motor/
-
 import RPi.GPIO as GPIO
 import time
 
