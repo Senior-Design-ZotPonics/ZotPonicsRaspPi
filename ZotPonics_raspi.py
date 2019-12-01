@@ -55,6 +55,21 @@ class ZotPonics():
             pass
         else:
             import RPi.GPIO as GPIO
+            GPIO.setmode(GPIO.BCM)
+
+            #====Set pin numbers====
+            self.SERVO_PIN = 25
+            self.FAN_PIN = 26
+
+            #====Setup pins====
+            GPIO.setup(self.SERVO_PIN,GPIO.OUT)
+            GPIO.setup(self.FAN_PIN,GPIO.OUT)
+
+            #====Setup servo motor====
+            self.servo = GPIO.PWM(self.SERVO_PIN,50)
+            self.servo.start(2.5)
+            self.closeVent()
+
 
 
     def run(self,simulateAll=False,temperSim=False,humidSim=False,baseLevelSim=False,ecSim=False):
@@ -175,9 +190,13 @@ class ZotPonics():
         """
         #----Check temp/humidity and fan/vent control------
         if (sensorData[1] > self.tempMax):
+            if (not self.fan):
+                self.runFan()
             self.fan = True
             print("FAN IS ON")
         else:
+            if (self.fan):
+                self.stopFan()
             self.fan = False
 
         if (sensorData[1] > self.tempMax or sensorData[2] > self.humidityMax):
@@ -209,32 +228,37 @@ class ZotPonics():
             self.lightOn = False
 
         #----Activate actuators------
-        if (self.fan):
-            self.spinFan()
-
         if (self.water):
             self.dispenseWater()
 
         #----Check reserves and notify--------
             #calculate depending on how much reserves are dispensed
 
-    def spinFan(self):
+    def runFan(self):
         """
+        Run fan by setting fan GPIO pin to true
         """
-        #make fan spin
-        pass
+        GPIO.output(fan, True)
+
+    def stopFan(self):
+        """
+        Stop fan by setting fan GPIO pin to false
+        """
+        GPIO.output(fan, False)
 
     def openVent(self):
         """
+        Set servo to 180 degree to open vent
+        Duty cycle for 180 degree = 12%
         """
-        #open vent
-        pass
+        self.servo.ChangeDutyCycle(12)
 
     def closeVent(self):
         """
+        Set servo to 0 degree to close vent
+        Duty cycle for 0 degree = 3%
         """
-        #close vent
-        pass
+        self.servo.ChangeDutyCycle(3)
 
     def dispenseWater(self):
         """
