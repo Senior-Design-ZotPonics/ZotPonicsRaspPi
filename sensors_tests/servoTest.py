@@ -7,9 +7,9 @@ import time
 
 control = [5,5.5,6,6.5,7,7.5,8,8.5,9,9.5,10]
 
-servo = 22
+servo = 25 #GPIO pin
 
-GPIO.setmode(GPIO.BOARD)
+GPIO.setmode(GPIO.BCM)
 
 GPIO.setup(servo,GPIO.OUT)
 # in servo motor,
