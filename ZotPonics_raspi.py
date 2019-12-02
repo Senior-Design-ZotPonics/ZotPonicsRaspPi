@@ -58,19 +58,21 @@ class ZotPonics():
             GPIO.setmode(GPIO.BCM)
 
             #====Set pin numbers====
-            self.SERVO_PIN = 25
-            self.FAN_PIN = 26
+            self.SERVO_PIN = 25 #GPIO 25
+            self.FAN_PIN = 26 #GPIO 26
+            self.ULTRASONIC_TRIG = 23 #GPIO 23
+            self.ULTRASONIC_ECHO = 24 #GPIO 24
 
             #====Setup pins====
             GPIO.setup(self.SERVO_PIN,GPIO.OUT)
             GPIO.setup(self.FAN_PIN,GPIO.OUT)
+            GPIO.setup(self.ULTRASONIC_TRIG,GPIO.OUT)
+            GPIO.setup(sefl.ULTRAONIC_ECHO,GPIO.IN)
 
             #====Setup servo motor====
             self.servo = GPIO.PWM(self.SERVO_PIN,50)
             self.servo.start(2.5)
             self.closeVent()
-
-
 
     def run(self,simulateAll=False,temperSim=False,humidSim=False,baseLevelSim=False,ecSim=False):
         """
@@ -161,8 +163,37 @@ class ZotPonics():
         if simulate:
             return 0.0
         else:
-            #this would be where we implement sensor GPIO logic
-            return 0.0 #temporary
+            #set the Trigger to HIGH
+            GPIO.output(self.ULTRAONIC_TRIG, True)
+
+            #set the Trigger after 0.01 ms to LOW
+            time.sleep(0.00001)
+            GPIO.output(self.ULTRASONIC_TRIG, False)
+
+            StartTime = time.time()
+            StopTime = time.time()
+
+            ultrasonicFailed = False
+            #save StartTime
+            for i in range(500):
+                StartTime = time.time()
+                if GPIO.input(self.ULTRASONIC_ECHO) != 0:
+                    break
+                if i == 499: ultrasonicFailed = True
+
+            #save time of arrival
+            for j in range(500):
+                StopTime = time.time()
+                if GPIO.input(self.ULTRASONIC_ECHO) != 0:
+                    break
+                if j == 499: ultrasonicFailed = True
+
+            if ultrasonicFailed:
+                return -1 #we know the sensor failed
+            else:
+                TimeElapsed = StopTime - StartTime
+                distance = (TimeElapsed*34300)/2
+                return distance
 
     def updateDatabase(self,timestamp,temperature,humidity,base_level):
         """
