@@ -74,11 +74,12 @@ class ZotPonics():
             self.servo.start(2.5)
             self.closeVent()
 
-    def run(self,simulateAll=False,temperSim=False,humidSim=False,baseLevelSim=False,ecSim=False):
+    def run(self,simulateAll=False,temperSim=False,humidSim=False,baseLevelSim=False):
         """
         This is the main function for running all the data collection logic,
         data base reading, control growth logic, and idle state logic.
 
+        simulateAll<bool>
         temperSim<bool>: If True, just return 0.0 for the the temperature data.
         humidSim<bool>: If True, just return 0.0 for the the humidity data
         baseLevelSim<bool>: If True, just return 0.0 for the the base level data
@@ -90,7 +91,7 @@ class ZotPonics():
         #========== Main Loop ================
         while True:
             #======DATA COLLECTION=======
-            sensorData = self.sensorCollect() #this is a list  of (timestamp,temperature,humidity,baseLevel) #also updates the database
+            sensorData = self.sensorCollect(temperSim, humidSim, baseLevelSim) #this is a list  of (timestamp,temperature,humidity,baseLevel) #also updates the database
 
             #======READ CONTROl GROWTH FACTORS====
             _, self.lightStartTime, self.lightEndTime, self.humidityMax, self.tempMax, self.wateringFreq, self.wateringDuration, self.baseLevelMin = self.readUserControlFactors()
@@ -107,7 +108,7 @@ class ZotPonics():
             #=======IDLE STATE=========
             break #just for testing
 
-    def sensorCollect(self,temperSim=False,humidSim=False,baseLevelSim=False,ecSim=False):
+    def sensorCollect(self,temperSim=False,humidSim=False,baseLevelSim=False):
         """
         This is the main function for sensor data collections. It updates the database and
         returns the outputs as a tuple.
@@ -372,4 +373,4 @@ class ZotPonics():
 
 if __name__ == "__main__":
     zot = ZotPonics()
-    zot.run(simulateAll=True,temperSim=False,humidSim=False,baseLevelSim=False,ecSim=False)
+    zot.run(simulateAll=True,temperSim=False,humidSim=False,baseLevelSim=False)
