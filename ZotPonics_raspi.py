@@ -79,7 +79,7 @@ class ZotPonics():
         This is the main function for running all the data collection logic,
         data base reading, control growth logic, and idle state logic.
 
-        simulateAll<bool>
+        simulateAll<bool>: If True, It turns all the other boolean parameters to True.
         temperSim<bool>: If True, just return 0.0 for the the temperature data.
         humidSim<bool>: If True, just return 0.0 for the the humidity data
         baseLevelSim<bool>: If True, just return 0.0 for the the base level data

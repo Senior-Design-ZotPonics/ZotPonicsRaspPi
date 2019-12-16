@@ -6,11 +6,27 @@ Sidney Lau: B.S. Computer Science and Engineering Major, Class of 2020, Universi
 
 Owen Yang: B.S. Computer Science and Engineering Major, Class of 2020, University of California, Irvine
 *********************
+# Set-Up
+This code was developed with Python 3.7.2
+
+Make sure that you have the following Python libraries installed:
+1. sqlite3
+2. Adafruit_DHT
+
+To get the Adafruit_DHT library run this in the terminal:
+```
+sudo apt-get update
+sudo apt-get install build-essential python-dev python-openssl git
+git clone https://github.com/adafruit/Adafruit_Python_DHT.git && cd Adafruit_Python_DHT
+sudo python setup.py install
+```
+*********************
 # Running ZotPonics Raspberry Pi Code
-This section is to help you run the ZotPonics Raspberry Pi Code.
+To run it on the Raspberry Pi just run the following command:
 ```
-python3 ZotPonics_raspipy
+python3 ZotPonics_raspi.py
 ```
+
 *********************
 # Testing
 For you can use the `userSimulate.py` file.
@@ -25,13 +41,16 @@ This function helps run the main control block logic for your ZotPonics hydropon
 
 > ### Parameters
 >
-> **simulateAll[bool]**:
+> **simulateAll[bool]**: If True, It turns all the other boolean parameters to True.
 >
-> **temperSim[bool]**:
+> **temperSim[bool]**: If True, just return 0.0 for the the temperature data.
 >
-> **humidSim[bool]**:
+> **humidSim[bool]**: If True, just return 0.0 for the the humidity data.
 >
-> **baseLevelSim[bool]**:
+> **baseLevelSim[bool]**: If True, just return 0.0 for the the base level data.
+
+> ### Returns
+> *None*
 
 ## randomUserInputFactor
 #### randomUserInputFactors(n=10,sleepTime=5)
