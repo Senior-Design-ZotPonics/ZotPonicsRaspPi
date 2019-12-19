@@ -54,6 +54,7 @@ class ZotPonics():
         if simulateAll:
             pass
         else:
+            import Adafruit_DHT.DHT11
             import RPi.GPIO as GPIO
             GPIO.setmode(GPIO.BCM)
 
@@ -62,6 +63,9 @@ class ZotPonics():
             self.FAN_PIN = 26 #GPIO 26
             self.ULTRASONIC_TRIG = 23 #GPIO 23
             self.ULTRASONIC_ECHO = 24 #GPIO 24
+            self.DHT11 = 4 #GPIO 4, for the temperature and humidity sensor
+            self.LIGHT = 5 #GPIO 5
+            self.PUMP = 6 #GPIO 6
 
             #====Setup pins====
             GPIO.setup(self.SERVO_PIN,GPIO.OUT)
