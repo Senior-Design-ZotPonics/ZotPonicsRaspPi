@@ -18,9 +18,7 @@ class ZotPonics():
         #======Variables that should not be changed==========
         self.tempMin = 60 #Fahrenheit #<oky>: Not used, because we don't have heating element
 
-        #======GPIO Variables that should not be changed=====
-
-        #======Data base variabxles======
+        #======Data base variables======
         self.sensorFreq = 300 #seconds #<oky>: Not used yet
 
         self.lightStartTime = 8 #int in 24hr format
@@ -78,7 +76,7 @@ class ZotPonics():
             self.servo.start(2.5)
             self.closeVent()
 
-    def run(self,simulateAll=False,temperSim=False,humidSim=False,baseLevelSim=False):
+    def run(self,simulateAll=False,temperSim=False,humidSim=False,baseLevelSim=False,plantHeightSim=False,demoMode=False):
         """
         This is the main function for running all the data collection logic,
         data base reading, control growth logic, and idle state logic.
@@ -87,32 +85,39 @@ class ZotPonics():
         temperSim<bool>: If True, just return 0.0 for the the temperature data.
         humidSim<bool>: If True, just return 0.0 for the the humidity data
         baseLevelSim<bool>: If True, just return 0.0 for the the base level data
+        plantHeightSim<bool>: If True, just return 0.0 for the plant height data
+        demoMode<bool>: If True, the program will not collect sensor data or run "APPLY GROWTH FACTORS LOGIC"
         """
         #========== GPIO and/or Simulation Logic Setup=============
-        if (simulateAll==True): temperSim, humidSim, baseLevelSim = True, True, True
+        if (simulateAll==True): temperSim, humidSim, baseLevelSim, plantHeightSim = True, True, True, True
         self.setupGPIO(simulateAll)
 
         #========== Main Loop ================
         while True:
-            #======DATA COLLECTION=======
-            sensorData = self.sensorCollect(temperSim, humidSim, baseLevelSim) #this is a list  of (timestamp,temperature,humidity,baseLevel) #also updates the database
+            if not demoMode:
+                #======DATA COLLECTION=======
+                sensorData = self.sensorCollect(temperSim, humidSim, baseLevelSim, plantHeightSim) #this is a list  of (timestamp,temperature,humidity,baseLevel) #also updates the database
 
-            #======READ CONTROl GROWTH FACTORS====
-            _, self.lightStartTime, self.lightEndTime, self.humidityMax, self.tempMax, self.wateringFreq, self.wateringDuration, self.baseLevelMin = self.readUserControlFactors()
+                #======READ CONTROl GROWTH FACTORS====
+                _, self.lightStartTime, self.lightEndTime, self.humidityMax, self.tempMax, self.wateringFreq, self.wateringDuration, self.baseLevelMin = self.readUserControlFactors()
 
-            print(self.lightStartTime, self.lightEndTime, self.humidityMax, self.tempMax, self.wateringFreq, self.wateringDuration)
+                print("Control Growth Factors:", self.lightStartTime, self.lightEndTime, self.humidityMax, self.tempMax, self.wateringFreq, self.wateringDuration)
 
-            #====== APPLY CONTROL GROWTH FACTORS LOGIC=====
-            self.controlGrowthFactors(sensorData) #<sid>
+                #====== APPLY CONTROL GROWTH FACTORS LOGIC=====
+                self.controlGrowthFactors(sensorData) #<sid>
 
-            #======READ USER ACTIVIATED CONTROLS=========
-            userAct = self.readUserActControls()
-            print(userAct)
+                #=======IDLE STATE=========
+                time.sleep(15) #just for testing
 
-            #=======IDLE STATE=========
-            break #just for testing
+            if (demoMode):
+                #======READ USER ACTIVIATED CONTROLS=========
+                userAct = self.readUserActControls()
+                print("User Activated Controls:", userAct)
 
-    def sensorCollect(self,temperSim=False,humidSim=False,baseLevelSim=False):
+
+
+
+    def sensorCollect(self,temperSim=False,humidSim=False,baseLevelSim=False,plantHeightSim=False):
         """
         This is the main function for sensor data collections. It updates the database and
         returns the outputs as a tuple.
@@ -130,9 +135,12 @@ class ZotPonics():
         #------Base Reservoir Water Level Data (cm)--------
         baseLevel = self.baseLevelData(baseLevelSim)
 
+        #------Plant Height (cm)-----------------
+        plantHeight = self.plantHeightData(plantHeightSim)
+
         #-----------Add to Database----------
         timestamp = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
-        self.updateDatabase(timestamp,temperature,humidity,baseLevel)
+        self.updateDatabase(timestamp,temperature,humidity,baseLevel,plantHeight)
         return (timestamp,temperature,humidity,baseLevel)
 
     def temperData(self,simulate):
@@ -160,6 +168,48 @@ class ZotPonics():
             return 0.0 #temporary
 
     def baseLevelData(self,simulate):
+        """
+        Collects the base water level Data. User has the option to simulate the
+        data if no physical sensor exits.
+        simulate<bool>:
+        """
+        if simulate:
+            return 0.0
+        else:
+            return -1 #<oky>: need to discuss with teammates, but we can ignore baseLevelData for now
+            # #set the Trigger to HIGH
+            # GPIO.output(self.ULTRAONIC_TRIG, True)
+            #
+            # #set the Trigger after 0.01 ms to LOW
+            # time.sleep(0.00001)
+            # GPIO.output(self.ULTRASONIC_TRIG, False)
+            #
+            # StartTime = time.time()
+            # StopTime = time.time()
+            #
+            # ultrasonicFailed = False
+            # #save StartTime
+            # for i in range(500):
+            #     StartTime = time.time()
+            #     if GPIO.input(self.ULTRASONIC_ECHO) != 0:
+            #         break
+            #     if i == 499: ultrasonicFailed = True
+            #
+            # #save time of arrival
+            # for j in range(500):
+            #     StopTime = time.time()
+            #     if GPIO.input(self.ULTRASONIC_ECHO) != 0:
+            #         break
+            #     if j == 499: ultrasonicFailed = True
+            #
+            # if ultrasonicFailed:
+            #     return -1 #we know the sensor failed
+            # else:
+            #     TimeElapsed = StopTime - StartTime
+            #     distance = (TimeElapsed*34300)/2
+            #     return distance
+
+    def plantHeightData(self,simulate):
         """
         Collects the base water level Data. User has the option to simulate the
         data if no physical sensor exits.
@@ -200,25 +250,60 @@ class ZotPonics():
                 distance = (TimeElapsed*34300)/2
                 return distance
 
-    def updateDatabase(self,timestamp,temperature,humidity,base_level):
+    def updateDatabase(self,timestamp,temperature,humidity,base_level,plant_height):
         """
         Temporarily adding to sqlite, will add to MySQL.
         timestamp<str>: timestamp in the format '%Y-%m-%d %H:%M:%S'
         temperature<float>: the read temperature value
         humidity<float>: the read humidity value
         base_level<float>: the read base water level value
+        plant_height<float>: the read plant height value
         """
         conn = sqlite3.connect("zotponics.db")
         conn.execute('''CREATE TABLE IF NOT EXISTS "SENSOR_DATA" (
             "TIMESTAMP"	TEXT NOT NULL,
             "TEMPERATURE"	REAL,
             "HUMIDITY"	REAL,
-            "BASE_LEVEL" REAL
+            "BASE_LEVEL" REAL,
+            "PLANTHEIGHT" REAL
         );
         ''')
-        conn.execute("INSERT INTO SENSOR_DATA (TIMESTAMP,TEMPERATURE,HUMIDITY,BASE_LEVEL)\nVALUES ('{}',{},{},{})".format(timestamp,temperature,humidity,base_level))
+        conn.execute("INSERT INTO SENSOR_DATA (TIMESTAMP,TEMPERATURE,HUMIDITY,BASE_LEVEL)\nVALUES ('{}',{},{},{})".format(timestamp,temperature,humidity,base_level,plant_height))
         conn.commit()
         conn.close()
+
+    def LastWateredTimestamp(self):
+        """
+        This function returns the most recent timestamp from the sql database.
+        Output:
+            - None (that means the table was empty)
+            - timestamp in the form '%Y-%m-%d %H:%M:%S'
+        """
+        timestamp = None
+        try:
+            conn = sqlite3.connect("zotponics.db")
+            cursor = conn.execute("SELECT * FROM LAST_WATERED ORDER BY TIMESTAMP DESC LIMIT 1")
+            timestamp = datetime.datetime.strptime(next(cursor)[0], '%Y-%m-%d %H:%M:%S') #converting it back into a datetime object
+        except StopIteration:
+            #this means that the table is empty, don't do anything
+            pass
+        finally:
+            conn.close()
+        return timestamp
+
+    def updateLastWateredTable(self):
+        try:
+            conn = sqlite3.connect("zotponics.db")
+            timestamp = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
+            conn.execute('''CREATE TABLE IF NOT EXISTS "LAST_WATERED" (
+                "TIMESTAMP" TEXT NOT NULL
+            );
+            ''')
+            conn.execute("INSERT INTO LAST_WATERED (TIMESTAMP)\nVALUES ('{}')".format(timestamp))
+
+            conn.commit()
+        finally:
+            conn.close()
 
     def controlGrowthFactors(self,sensorData):
         """
@@ -227,6 +312,7 @@ class ZotPonics():
         #----Check temp/humidity and fan/vent control------
         if (sensorData[1] > self.tempMax):
             if (not self.fan):
+                self.openVent()
                 self.runFan()
             self.fan = True
             print("FAN IS ON")
@@ -245,12 +331,24 @@ class ZotPonics():
                 self.closeVent()
             self.vent = False
 
-        #----Check base level and dispense reserves-------
+        #----Check base level and notify-------
+        #<oky> need to change logic here
         if (sensorData[3] <= self.baseLevelMin):
-            self.water = True
-            print("DISPENSE WATER")
+            #self.water = True
+            print("REFILL NUTRIENT WATER")
         else:
-            self.water = False
+            pass
+            #self.water = False
+
+        #------check watering frequency and water----------
+        lastWateredTimestamp = self.LastWateredTimestamp()
+        if (lastWateredTimestamp == None):
+            self.water = True
+        else:
+            if ( (lastWateredTimestamp - datetime.datetime.fromtimestamp(time.time())).total_seconds() > self.wateringFreq ):
+                self.water = True
+            else:
+                self.water = False
 
         #----Check hour and light control-------
         hour = datetime.datetime.now().hour #returns hour in 24hr format int
@@ -265,7 +363,9 @@ class ZotPonics():
 
         #----Activate actuators------
         if (self.water):
+            print("WATERING")
             self.dispenseWater()
+            self.updateLastWateredTable()
 
         #----Check reserves and notify--------
             #calculate depending on how much reserves are dispensed
@@ -377,4 +477,4 @@ class ZotPonics():
 
 if __name__ == "__main__":
     zot = ZotPonics()
-    zot.run(simulateAll=True,temperSim=False,humidSim=False,baseLevelSim=False)
+    zot.run(simulateAll=True)
