@@ -44,7 +44,6 @@ class ZotPonics():
         #======control Logic Variables======
         self.lightTimer = time.time()
 
-
     def setupGPIO(self,simulateAll=False):
         """
         Function to help simulate the sensors and manage GPIO import
@@ -114,9 +113,6 @@ class ZotPonics():
                 userAct = self.readUserActControls()
                 print("User Activated Controls:", userAct)
 
-
-
-
     def sensorCollect(self,temperSim=False,humidSim=False,baseLevelSim=False,plantHeightSim=False):
         """
         This is the main function for sensor data collections. It updates the database and
@@ -177,37 +173,6 @@ class ZotPonics():
             return 0.0
         else:
             return -1 #<oky>: need to discuss with teammates, but we can ignore baseLevelData for now
-            # #set the Trigger to HIGH
-            # GPIO.output(self.ULTRAONIC_TRIG, True)
-            #
-            # #set the Trigger after 0.01 ms to LOW
-            # time.sleep(0.00001)
-            # GPIO.output(self.ULTRASONIC_TRIG, False)
-            #
-            # StartTime = time.time()
-            # StopTime = time.time()
-            #
-            # ultrasonicFailed = False
-            # #save StartTime
-            # for i in range(500):
-            #     StartTime = time.time()
-            #     if GPIO.input(self.ULTRASONIC_ECHO) != 0:
-            #         break
-            #     if i == 499: ultrasonicFailed = True
-            #
-            # #save time of arrival
-            # for j in range(500):
-            #     StopTime = time.time()
-            #     if GPIO.input(self.ULTRASONIC_ECHO) != 0:
-            #         break
-            #     if j == 499: ultrasonicFailed = True
-            #
-            # if ultrasonicFailed:
-            #     return -1 #we know the sensor failed
-            # else:
-            #     TimeElapsed = StopTime - StartTime
-            #     distance = (TimeElapsed*34300)/2
-            #     return distance
 
     def plantHeightData(self,simulate):
         """
@@ -367,51 +332,6 @@ class ZotPonics():
             self.dispenseWater()
             self.updateLastWateredTable()
 
-        #----Check reserves and notify--------
-            #calculate depending on how much reserves are dispensed
-
-    def runFan(self):
-        """
-        Run fan by setting fan GPIO pin to true
-        """
-        GPIO.output(fan, True)
-
-    def stopFan(self):
-        """
-        Stop fan by setting fan GPIO pin to false
-        """
-        GPIO.output(fan, False)
-
-    def openVent(self):
-        """
-        Set servo to 180 degree to open vent
-        Duty cycle for 180 degree = 12%
-        """
-        self.servo.ChangeDutyCycle(12)
-
-    def closeVent(self):
-        """
-        Set servo to 0 degree to close vent
-        Duty cycle for 0 degree = 3%
-        """
-        self.servo.ChangeDutyCycle(3)
-
-    def dispenseWater(self):
-        """
-        """
-        #spit out water
-        pass
-
-    def turnOnLight(self):
-        """
-        """
-        pass
-
-    def turnOffLight(self):
-        """
-        """
-        pass
-
     def readUserControlFactors(self):
         """
         This will read the user control growth factors and return the values
@@ -473,7 +393,47 @@ class ZotPonics():
             conn.close()
         return row
 
+    def runFan(self):
+        """
+        Run fan by setting fan GPIO pin to true
+        """
+        GPIO.output(fan, True)
 
+    def stopFan(self):
+        """
+        Stop fan by setting fan GPIO pin to false
+        """
+        GPIO.output(fan, False)
+
+    def openVent(self):
+        """
+        Set servo to 180 degree to open vent
+        Duty cycle for 180 degree = 12%
+        """
+        self.servo.ChangeDutyCycle(12)
+
+    def closeVent(self):
+        """
+        Set servo to 0 degree to close vent
+        Duty cycle for 0 degree = 3%
+        """
+        self.servo.ChangeDutyCycle(3)
+
+    def dispenseWater(self):
+        """
+        """
+        #spit out water
+        pass
+
+    def turnOnLight(self):
+        """
+        """
+        pass
+
+    def turnOffLight(self):
+        """
+        """
+        pass
 
 if __name__ == "__main__":
     zot = ZotPonics()
