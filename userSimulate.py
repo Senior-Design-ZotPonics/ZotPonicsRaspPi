@@ -73,6 +73,21 @@ def UserActivateControl(fans=0,vents=1,lights=0,water=1,notify=1):
     finally:
         conn.close()
 
+def lastWateredInput():
+    try:
+        conn = sqlite3.connect("zotponics.db")
+        timestamp = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
+        conn.execute('''CREATE TABLE IF NOT EXISTS "LAST_WATERED" (
+            "TIMESTAMP" TEXT NOT NULL
+        );
+        ''')
+        conn.execute("INSERT INTO LAST_WATERED (TIMESTAMP)\nVALUES ('{}')".format(timestamp))
+
+        conn.commit()
+    finally:
+        conn.close()
+
 if __name__ == "__main__":
     randomUserInputFactors()
-    UserActivateControl()
+    #UserActivateControl()
+    #lastWateredInput()
