@@ -12,7 +12,12 @@ This code was developed with Python 3.7.2
 Make sure that you have the following Python libraries installed:
 1. sqlite3
 2. Adafruit_DHT
+3. Flask
 
+To get the Flask library run this in the terminal:
+```
+pip install flask
+```
 To get the Adafruit_DHT library run this in the terminal:
 ```
 sudo apt-get update
