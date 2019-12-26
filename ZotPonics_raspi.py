@@ -233,7 +233,7 @@ class ZotPonics():
             "PLANTHEIGHT" REAL
         );
         ''')
-        conn.execute("INSERT INTO SENSOR_DATA (TIMESTAMP,TEMPERATURE,HUMIDITY,BASE_LEVEL)\nVALUES ('{}',{},{},{})".format(timestamp,temperature,humidity,base_level,plant_height))
+        conn.execute("INSERT INTO SENSOR_DATA (TIMESTAMP,TEMPERATURE,HUMIDITY,BASE_LEVEL,PLANTHEIGHT)\nVALUES ('{}',{},{},{},{})".format(timestamp,temperature,humidity,base_level,plant_height))
         conn.commit()
         conn.close()
 
@@ -424,17 +424,20 @@ class ZotPonics():
     def dispenseWater(self):
         """
         """
+        # TODO:
         #spit out water
         pass
 
     def turnOnLight(self):
         """
         """
+        # TODO:
         pass
 
     def turnOffLight(self):
         """
         """
+        # TODO:
         pass
 
 if __name__ == "__main__":
