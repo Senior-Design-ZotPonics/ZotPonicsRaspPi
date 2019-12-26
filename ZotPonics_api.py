@@ -7,30 +7,19 @@ Resources:
     - https://blog.miguelgrinberg.com/post/designing-a-restful-api-with-python-and-flask
 """
 #!flask/bin/python
-from flask import Flask, jsonify, make_response
+from flask import Flask, jsonify, make_response, request
 import sqlite3
-import datetime
 
 app = Flask(__name__)
 
-tasks = [
-    {
-        'id': 1,
-        'title': u'Buy groceries',
-        'description': u'Milk, Cheese, Pizza, Fruit, Tylenol',
-        'done': False
-    },
-    {
-        'id': 2,
-        'title': u'Learn Python',
-        'description': u'Need to find a good Python tutorial on the web',
-        'done': False
-    }
-]
-
 @app.route('/recentsensordata', methods=['GET'])
 def get_recentSensorData():
-
+    """
+    This is the GET API for the ZotPonics system that will retrieve all the
+    sensor data and return it as a json object.
+    The data it will send back will include: last wateredTimestamp, timestamp,
+    temperature, humidity, baseLevel, plantHeight, lightStatus
+    """
     readings = [
         {
             'lastWateredTimestamp': None,
@@ -64,6 +53,23 @@ def get_recentSensorData():
     #readings['lightStatus'] =  # TODO:
 
     return jsonify({'readings': readings})
+
+@app.route('/userControlGrowth', methods=['POST'])
+def create_task():
+    if not request.json:
+        abort(400)
+
+    print(request.json)
+    #
+    # task = {
+    #     'id': tasks[-1]['id'] + 1,
+    #     'title': request.json['title'],
+    #     'description': request.json.get('description', ""),
+    #     'done': False
+    # }
+    #return jsonify({'task': task}), 201
+
+    return "Created: " + str(request.json), 201
 
 if __name__ == '__main__':
     app.run(debug=True,host='0.0.0.0') # TODO: make server exclusive
