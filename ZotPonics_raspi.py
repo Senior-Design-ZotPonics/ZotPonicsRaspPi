@@ -3,9 +3,6 @@ Authors: Sid Lau, Jason Lim, Kathy Nguyen, Owen Yang
 Organization: ZotPonics Inc.
 Notes:
 - Database is "zotponics.db" for now.
-Resources:
-- Controlling a Servo
-    - https://www.learnrobotics.org/blog/raspberry-pi-servo-motor/
 """
 
 import sqlite3

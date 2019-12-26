@@ -1,3 +1,8 @@
+"""
+Authors: Sid Lau, Jason Lim, Kathy Nguyen, Owen Yang
+Organization: ZotPonics Inc.
+"""
+
 import time
 import datetime
 import sqlite3
