@@ -79,3 +79,6 @@ This function is located in the `userSimulate.py` file. You can run the function
 
 > ### Returns
 > *None*
+
+# Wiki
+Read our wiki for more information: [ZotPonics Wiki](https://github.com/Senior-Design-ZotPonics/ZotPonicsRaspPi/wiki)
