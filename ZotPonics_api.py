@@ -9,6 +9,7 @@ Resources:
 #!flask/bin/python
 from flask import Flask, jsonify, make_response, request
 import sqlite3
+import datetime, time
 
 app = Flask(__name__)
 
@@ -58,7 +59,47 @@ def get_recentSensorData():
 def create_task():
     if not request.json:
         abort(400)
+    postData = request.json["controlfactors"]
+    for row in postData:
+        lightstart = row["lightstart"]
+        lightend = row["lightend"]
+        humidity = row["humidity"]
+        temp = row["temp"]
+        waterfreq = row["waterfreq"]
+        nutrientratio = row["nutrientratio"]
+        baselevel = row["baselevel"]
+        UserInputFactor(lightstart,lightend,humidity,temp,waterfreq,nutrientratio,baselevel)
+
     return "Created: " + str(request.json), 201
+
+def UserInputFactor(lightstart=8,lightend=22,humidity=80,temp=100,waterfreq=300,nutrientratio=80,baselevel=10):
+    """
+    lightstart<int>
+    lightend<int>
+    humidity<int>
+    temp<int>
+    waterfreq<int>
+    nutrientratio<int>
+    """
+    try:
+        conn = sqlite3.connect("zotponics.db")
+        timestamp = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
+        conn.execute('''CREATE TABLE IF NOT EXISTS "CONTROLFACTORS" (
+            "TIMESTAMP" TEXT NOT NULL,
+            "LIGHTSTARTTIME"    REAL,
+            "LIGHTENDTIME"  REAL,
+            "HUMIDITY"   REAL,
+            "TEMPERATURE"   REAL,
+            "WATERINGFREQ"  REAL,
+            "NUTRIENTRATIO" REAL,
+            "BASELEVEL" REAL
+        );
+        ''')
+        conn.execute("INSERT INTO CONTROLFACTORS (TIMESTAMP,LIGHTSTARTTIME,LIGHTENDTIME,HUMIDITY,TEMPERATURE,WATERINGFREQ,NUTRIENTRATIO,BASELEVEL)\nVALUES ('{}',{},{},{},{},{},{},{})".format(timestamp,lightstart,lightend,humidity,temp,waterfreq,nutrientratio,baselevel))
+
+        conn.commit()
+    finally:
+        conn.close()
 
 if __name__ == '__main__':
     app.run(debug=True,host='0.0.0.0') # TODO: make server exclusive
