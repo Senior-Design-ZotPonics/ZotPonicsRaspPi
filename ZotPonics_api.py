@@ -54,7 +54,7 @@ def get_recentSensorData():
 
     return jsonify({'readings': readings})
 
-@app.route('/userControlGrowth', methods=['POST'])
+@app.route('/usercontrolgrowth', methods=['POST'])
 def create_task():
     if not request.json:
         abort(400)
