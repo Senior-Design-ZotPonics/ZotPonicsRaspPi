@@ -45,13 +45,21 @@ def get_recentSensorData():
         pass
     finally:
         conn.close()
+
+    lightStartTime, lightEndTime = getLightStartEnd()
+    hour = datetime.datetime.now().hour #returns hour in 24hr format int
+    if (hour >= lightStartTime and hour < lightEndTime):
+        lightOn = True
+    else:
+        lightOn = False
+
     readings[0]['lastWateredTimestamp'] = wateredTimestamp
     readings[0]['timestamp'] = timestamp
     readings[0]['temperature'] = temperature
     readings[0]['humidity'] = humidity
     readings[0]['baseLevel'] = baseLevel
     readings[0]['plantHeight'] = plantHeight
-    #readings['lightStatus'] =  # TODO:
+    readings[0]['lightStatus'] = str(lightOn) # TODO:
 
     return jsonify({'readings': readings})
 
@@ -100,6 +108,19 @@ def UserInputFactor(lightstart=8,lightend=22,humidity=80,temp=100,waterfreq=300,
         conn.commit()
     finally:
         conn.close()
+
+def getLightStartEnd():
+    lightStartTime, lightEndTime = 0,0
+    try:
+        conn = sqlite3.connect("zotponics.db")
+        timestamp = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
+        cursor = conn.execute("SELECT * FROM CONTROLFACTORS ORDER BY TIMESTAMP DESC LIMIT 1")
+        _, lightStartTime, lightEndTime, _, _, _, _, _ = next(cursor)
+        conn.commit()
+    finally:
+        conn.close()
+    return lightStartTime, lightEndTime
+
 
 if __name__ == '__main__':
     app.run(debug=True,host='0.0.0.0') # TODO: make server exclusive
