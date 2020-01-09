@@ -63,22 +63,58 @@ def get_recentSensorData():
 
     return jsonify({'readings': readings})
 
-@app.route('/usercontrolgrowth', methods=['POST'])
+@app.route('/usercontrolgrowth', methods=['GET', 'POST'])
 def create_task():
-    if not request.json:
-        abort(400)
-    postData = request.json["controlfactors"]
-    for row in postData:
-        lightstart = row["lightstart"]
-        lightend = row["lightend"]
-        humidity = row["humidity"]
-        temp = row["temp"]
-        waterfreq = row["waterfreq"]
-        nutrientratio = row["nutrientratio"]
-        baselevel = row["baselevel"]
-        UserInputFactor(lightstart,lightend,humidity,temp,waterfreq,nutrientratio,baselevel)
+	if request.method == 'POST':
+		if not request.json:
+			abort(400)
+		postData = request.json["controlfactors"]
+		for row in postData:
+			lightstart = row["lightstart"]
+			lightend = row["lightend"]
+			humidity = row["humidity"]
+			temp = row["temp"]
+			waterfreq = row["waterfreq"]
+			nutrientratio = row["nutrientratio"]
+			baselevel = row["baselevel"]
+			UserInputFactor(lightstart,lightend,humidity,temp,waterfreq,nutrientratio,baselevel)
 
-    return "Created: " + str(request.json), 201
+		return "Created: " + str(request.json), 201
+	else:
+		readings = [
+			{
+				'timestamp': None,
+				'lightStartTime': None,
+				'lightEndTime': None,
+				'humidity': None,
+				'temperature': None,
+				'waterFreq': None,
+				'nutrientRatio': None,
+				'baseLevel': None
+			},
+		]
+
+		timestamp, lightStartTime, lightEndTime, humidity, temperature, waterFreq, nutrientRatio, baseLevel = None, None, None, None, None, None, None, None
+		try:
+			conn = sqlite3.connect("zotponics.db")
+			cursor = conn.execute("SELECT * FROM CONTROLFACTORS ORDER BY TIMESTAMP DESC LIMIT 1")
+			timestamp, lightStartTime, lightEndTime, humidity, temperature, waterFreq, nutrientRatio, baseLevel = next(cursor)
+		except StopIteration:
+			#this means that the table is empty, don't do anything
+			pass
+		finally:
+			conn.close()
+
+		readings[0]['timestamp'] = timestamp
+		readings[0]['lightStartTime'] = lightStartTime
+		readings[0]['lightEndTime'] = lightEndTime
+		readings[0]['humidity'] = humidity
+		readings[0]['temperature'] = temperature
+		readings[0]['waterFreq'] = waterFreq
+		readings[0]['nutrientRatio'] = nutrientRatio
+		readings[0]['baseLevel'] = baseLevel
+
+		return jsonify({'readings': readings})
 
 def UserInputFactor(lightstart=8,lightend=22,humidity=80,temp=100,waterfreq=300,nutrientratio=80,baselevel=10):
     """
