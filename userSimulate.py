@@ -8,7 +8,7 @@ import datetime
 import sqlite3
 from random import randint
 
-def UserInputFactor(lightstart=8,lightend=22,humidity=80,temp=100,waterfreq=300,nutrientratio=80,baselevel=10):
+def UserInputFactor(lightstart=8,lightend=22,humidity=80,temp=100,waterfreq=300,waterdur=60,nutrientratio=80,baselevel=10):
     """
     lightstart<int>
     lightend<int>
@@ -27,11 +27,12 @@ def UserInputFactor(lightstart=8,lightend=22,humidity=80,temp=100,waterfreq=300,
             "HUMIDITY"   REAL,
             "TEMPERATURE"   REAL,
             "WATERINGFREQ"  REAL,
+            "WATERINGDURATION" REAL,
             "NUTRIENTRATIO" REAL,
             "BASELEVEL" REAL
         );
         ''')
-        conn.execute("INSERT INTO CONTROLFACTORS (TIMESTAMP,LIGHTSTARTTIME,LIGHTENDTIME,HUMIDITY,TEMPERATURE,WATERINGFREQ,NUTRIENTRATIO,BASELEVEL)\nVALUES ('{}',{},{},{},{},{},{},{})".format(timestamp,lightstart,lightend,humidity,temp,waterfreq,nutrientratio,baselevel))
+        conn.execute("INSERT INTO CONTROLFACTORS (TIMESTAMP,LIGHTSTARTTIME,LIGHTENDTIME,HUMIDITY,TEMPERATURE,WATERINGFREQ,WATERINGDURATION,NUTRIENTRATIO,BASELEVEL)\nVALUES ('{}',{},{},{},{},{},{},{},{})".format(timestamp,lightstart,lightend,humidity,temp,waterfreq,waterdur,nutrientratio,baselevel))
 
         conn.commit()
     finally:
@@ -48,12 +49,13 @@ def randomUserInputFactors(n=10,sleepTime=5):
         lightEnd   = randint(13,23)
         humidityMax = randint(0,100)
         tempMax = randint(0,100)
+        wateringFreq = randint(0,300)
         wateringDuration = randint(0,500)
 
-        wateringFreq = randint(0,300)
+        nutrientRatio = randint(0,300)
         baseLevel = randint(0,20)
         #input the random integers into the data base
-        UserInputFactor(lightStart,lightEnd,humidityMax,tempMax,wateringFreq,wateringDuration,baseLevel)
+        UserInputFactor(lightStart,lightEnd,humidityMax,tempMax,wateringFreq,wateringDuration,nutrientRatio,baseLevel)
 
         #add some delay
         time.sleep(sleepTime)
@@ -95,4 +97,4 @@ def lastWateredInput():
 if __name__ == "__main__":
     randomUserInputFactors()
     #UserActivateControl()
-    #lastWateredInput()
+    lastWateredInput()

@@ -28,7 +28,7 @@ class ZotPonics():
         self.wateringFreq = 300 #seconds
         self.wateringDuration = 100 #seconds
 
-        self.startNutrientRatio = 30 #percentage
+        self.nutrientRatio = 30 #percentage
 
         self.baseLevelMin = 40 #centimeters
 
@@ -95,7 +95,7 @@ class ZotPonics():
                 sensorData = self.sensorCollect(temperSim, humidSim, baseLevelSim, plantHeightSim) #this is a list  of (timestamp,temperature,humidity,baseLevel) #also updates the database
 
                 #======READ CONTROl GROWTH FACTORS====
-                _, self.lightStartTime, self.lightEndTime, self.humidityMax, self.tempMax, self.wateringFreq, self.wateringDuration, self.baseLevelMin = self.readUserControlFactors()
+                _, self.lightStartTime, self.lightEndTime, self.humidityMax, self.tempMax, self.wateringFreq, self.wateringDuration, self.nutrientRatio, self.baseLevelMin = self.readUserControlFactors()
 
                 print("Control Growth Factors:", self.lightStartTime, self.lightEndTime, self.humidityMax, self.tempMax, self.wateringFreq, self.wateringDuration)
 
@@ -223,9 +223,9 @@ class ZotPonics():
         """
         conn = sqlite3.connect("zotponics.db")
         conn.execute('''CREATE TABLE IF NOT EXISTS "SENSOR_DATA" (
-            "TIMESTAMP"	TEXT NOT NULL,
-            "TEMPERATURE"	REAL,
-            "HUMIDITY"	REAL,
+            "TIMESTAMP" TEXT NOT NULL,
+            "TEMPERATURE"   REAL,
+            "HUMIDITY"  REAL,
             "BASE_LEVEL" REAL,
             "PLANTHEIGHT" REAL
         );
@@ -343,10 +343,11 @@ class ZotPonics():
         - "HUMIDITY"   REAL,
         - "TEMPERATURE"   REAL,
         - "WATERINGFREQ"  REAL,
+        - "WATERINGDURATION" REAL,
         - "NUTRIENTRATIO" REAL,
         - "BASELEVEL" REAL
         """
-        row = (None,self.lightStartTime,self.lightEndTime,self.humidityMax,self.tempMax,self.wateringFreq,self.wateringDuration,self.baseLevelMin)
+        row = (None,self.lightStartTime,self.lightEndTime,self.humidityMax,self.tempMax,self.wateringFreq,self.wateringDuration,self.nutrientRatio,self.baseLevelMin)
         try:
             conn = sqlite3.connect("zotponics.db")
             cursor = conn.execute("SELECT * FROM CONTROLFACTORS ORDER BY TIMESTAMP DESC LIMIT 1")
