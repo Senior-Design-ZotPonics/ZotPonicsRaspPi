@@ -96,5 +96,5 @@ def lastWateredInput():
 
 if __name__ == "__main__":
     randomUserInputFactors()
-    #UserActivateControl()
+    UserActivateControl()
     lastWateredInput()

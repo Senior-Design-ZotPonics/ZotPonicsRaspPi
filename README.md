@@ -32,6 +32,8 @@ sudo apt-get update
 sudo apt-get install build-essential python-dev python-openssl git
 git clone https://github.com/adafruit/Adafruit_Python_DHT.git && cd Adafruit_Python_DHT
 sudo python setup.py install
+
+To set up the database, we use sqlite3. You can run `usuerSimulate.py` to quickly set up the zotponics database with random values generated for the database [tables](wiki_content/database_relation.png): USERDEMO, and CONTROLFACTORS. The other tables, SENSOR_DATA and LAST_WATERED will be populated once you run `ZotPonics_raspi.py` 
 ```
 # Running ZotPonics Raspberry Pi Code
 To run it on the Raspberry Pi just run the following command:
