@@ -12,9 +12,9 @@ GPIO.setup(fan,GPIO.OUT)
 try:
     while True:
         GPIO.output(fan, True)
-        Time.sleep(2)
+        time.sleep(2)
         GPIO.output(fan, False)
-        Time.sleep(2)
+        time.sleep(2)
 
 except KeyboardInterrupt:
     GPIO.cleanup()
