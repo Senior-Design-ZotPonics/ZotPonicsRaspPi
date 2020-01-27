@@ -1,6 +1,7 @@
 """
 Authors: Sid Lau, Jason Lim, Kathy Nguyen, Owen Yang
 Organization: ZotPonics Inc.
+Python Version 3.7
 Dependencies:
     - pip install Flask
 Resources:
