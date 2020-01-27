@@ -79,7 +79,7 @@ def create_task():
             waterdur = row["waterdur"]
             nutrientratio = row["nutrientratio"]
             baselevel = row["baselevel"]
-            UserInputFactor(lightstart,lightend,humidity,temp,waterfreq,waterdur,nutrientratio,baselevel)
+            _UserInputFactor(lightstart,lightend,humidity,temp,waterfreq,waterdur,nutrientratio,baselevel)
 
         return "Created: " + str(request.json), 201
     else:
@@ -120,7 +120,7 @@ def create_task():
 
         return jsonify({'readings': readings})
 
-def UserInputFactor(lightstart=8,lightend=22,humidity=80,temp=100,waterfreq=300,waterdur=60,nutrientratio=80,baselevel=10):
+def _UserInputFactor(lightstart=8,lightend=22,humidity=80,temp=100,waterfreq=300,waterdur=60,nutrientratio=80,baselevel=10):
     """
     lightstart<int>
     lightend<int>
