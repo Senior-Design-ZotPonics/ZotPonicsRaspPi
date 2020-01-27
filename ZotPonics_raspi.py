@@ -133,7 +133,7 @@ class ZotPonics():
 
         #-----------Add to Database----------
         timestamp = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
-        self.updateDatabase(timestamp,temperature,humidity,baseLevel,plantHeight)
+        self.updateDatabase(timestamp,temperature,humidity,baseLevel,plantHeight,False)
         return (timestamp,temperature,humidity,baseLevel)
 
     def temperData(self,simulate):
@@ -212,7 +212,7 @@ class ZotPonics():
                 distance = (TimeElapsed*34300)/2
                 return distance
 
-    def updateDatabase(self,timestamp,temperature,humidity,base_level,plant_height):
+    def updateDatabase(self,timestamp,temperature,humidity,base_level,plant_height,local=True):
         """
         Temporarily adding to sqlite, will add to MySQL.
         timestamp<str>: timestamp in the format '%Y-%m-%d %H:%M:%S'
@@ -221,18 +221,63 @@ class ZotPonics():
         base_level<float>: the read base water level value
         plant_height<float>: the read plant height value
         """
-        conn = sqlite3.connect("zotponics.db")
-        conn.execute('''CREATE TABLE IF NOT EXISTS "SENSOR_DATA" (
-            "TIMESTAMP" TEXT NOT NULL,
-            "TEMPERATURE"   REAL,
-            "HUMIDITY"  REAL,
-            "BASE_LEVEL" REAL,
-            "PLANTHEIGHT" REAL
-        );
-        ''')
-        conn.execute("INSERT INTO SENSOR_DATA (TIMESTAMP,TEMPERATURE,HUMIDITY,BASE_LEVEL,PLANTHEIGHT)\nVALUES ('{}',{},{},{},{})".format(timestamp,temperature,humidity,base_level,plant_height))
-        conn.commit()
-        conn.close()
+        # pip install mysqlclient
+        # pip install mysql
+        # pip install mysql-connector
+        # pip install sshtunnel
+        # https://help.pythonanywhere.com/pages/AccessingMySQLFromOutsidePythonAnywhere/
+        if local:
+            conn = sqlite3.connect("zotponics.db")
+            conn.execute('''CREATE TABLE IF NOT EXISTS "SENSOR_DATA" (
+                "TIMESTAMP" TEXT NOT NULL,
+                "TEMPERATURE"   REAL,
+                "HUMIDITY"  REAL,
+                "BASE_LEVEL" REAL,
+                "PLANTHEIGHT" REAL
+            );
+            ''')
+            conn.execute("INSERT INTO SENSOR_DATA (TIMESTAMP,TEMPERATURE,HUMIDITY,BASE_LEVEL,PLANTHEIGHT)\nVALUES ('{}',{},{},{},{})".format(timestamp,temperature,humidity,base_level,plant_height))
+            conn.commit()
+            conn.close()
+        else:
+            #creating imports
+            import mysql.connector
+            import sshtunnel
+            import json
+
+            sshtunnel.SSH_TIMEOUT = 5.0
+            sshtunnel.TUNNEL_TIMEOUT = 5.0
+
+            #reading the json file
+            data = None
+            with open('pythonanywhere.json') as json_file:
+                data = json.load(json_file)["account"][0]
+            if data == None: return
+
+            #interacting with the database
+            with sshtunnel.SSHTunnelForwarder(
+                ('ssh.pythonanywhere.com'),
+                ssh_username=data['username'], ssh_password=data['password'],
+                remote_bind_address=(data['bind_address'], 3306)
+            ) as tunnel:
+                connection = mysql.connector.connect(
+                    user=data['username'], password=data['database_password'],
+                    host='127.0.0.1', port=tunnel.local_bind_port,
+                    database=data['database_name'],
+                )
+                # Do stuff
+                connection.execute('''CREATE TABLE IF NOT EXISTS "SENSOR_DATA" (
+                    "TIMESTAMP" TEXT NOT NULL,
+                    "TEMPERATURE"   REAL,
+                    "HUMIDITY"  REAL,
+                    "BASE_LEVEL" REAL,
+                    "PLANTHEIGHT" REAL
+                );
+                ''')
+                connection.execute("INSERT INTO SENSOR_DATA (TIMESTAMP,TEMPERATURE,HUMIDITY,BASE_LEVEL,PLANTHEIGHT)\nVALUES ('{}',{},{},{},{})".format(timestamp,temperature,humidity,base_level,plant_height))
+                connection.commit()
+                connection.close()
+
 
     def LastWateredTimestamp(self):
         """
