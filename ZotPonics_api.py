@@ -46,7 +46,7 @@ def get_recentSensorData():
     finally:
         conn.close()
 
-    lightStartTime, lightEndTime = getLightStartEnd()
+    lightStartTime, lightEndTime = _getLightStartEnd()
     hour = datetime.datetime.now().hour #returns hour in 24hr format int
     if (hour >= lightStartTime and hour < lightEndTime):
         lightOn = True
@@ -149,7 +149,7 @@ def UserInputFactor(lightstart=8,lightend=22,humidity=80,temp=100,waterfreq=300,
     finally:
         conn.close()
 
-def getLightStartEnd():
+def _getLightStartEnd():
     lightStartTime, lightEndTime = 0,0
     try:
         conn = sqlite3.connect("zotponics.db")
