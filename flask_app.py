@@ -66,6 +66,7 @@ def get_recentSensorData():
         #this means that the table is empty, don't do anything
         pass
 
+    ## TODO: finish this logic
     # lightStartTime, lightEndTime = _getLightStartEnd()
     # hour = datetime.datetime.now().hour #returns hour in 24hr format int
     # if (hour >= lightStartTime and hour < lightEndTime):
@@ -128,6 +129,98 @@ def add_lastwatered():
         return "Created: " + str(request.json), 201
     else:
         return "Error"
+
+@app.route('/usercontrolgrowth', methods=['GET', 'POST'])
+def control_factors():
+    if request.method == 'POST':
+        if not request.json:
+            abort(400)
+        postData = request.json["controlfactors"]
+        for row in postData:
+            lightstart = row["lightstart"]
+            lightend = row["lightend"]
+            humidity = row["humidity"]
+            temp = row["temp"]
+            waterfreq = row["waterfreq"]
+            waterdur = row["waterdur"]
+            nutrientratio = row["nutrientratio"]
+            baselevel = row["baselevel"]
+            _UserInputFactor(lightstart,lightend,humidity,temp,waterfreq,waterdur,nutrientratio,baselevel)
+
+        return "Created: " + str(request.json), 201
+    else:
+        readings = [
+            {
+                'timestamp': None,
+                'lightStartTime': None,
+                'lightEndTime': None,
+                'humidity': None,
+                'temperature': None,
+                'waterFreq': None,
+                'waterDuration': None,
+                'nutrientRatio': None,
+                'baseLevel': None
+            },
+        ]
+
+        timestamp, lightStartTime, lightEndTime, humidity, temperature, waterFreq, waterDuration, nutrientRatio, baseLevel = None, None, None, None, None, None, None, None, None
+        try:
+            db = MySQLdb.connect(host="okyang.mysql.pythonanywhere-services.com",user=account["username"],passwd=account["password"],db=account["database"])
+            conn = db.cursor()
+            conn.execute("SELECT * FROM CONTROLFACTORS ORDER BY TIMESTAMP DESC LIMIT 1")
+            timestamp, lightStartTime, lightEndTime, humidity, temperature, waterFreq, waterDuration, nutrientRatio, baseLevel = conn.fetchone()
+            conn.close()
+        except StopIteration:
+            #this means that the table is empty, don't do anything
+            pass
+        except Exception as e:
+            return e
+
+        readings[0]['timestamp'] = timestamp
+        readings[0]['lightStartTime'] = lightStartTime
+        readings[0]['lightEndTime'] = lightEndTime
+        readings[0]['humidity'] = humidity
+        readings[0]['temperature'] = temperature
+        readings[0]['waterFreq'] = waterFreq
+        readings[0]['waterDuration'] = waterDuration
+        readings[0]['nutrientRatio'] = nutrientRatio
+        readings[0]['baseLevel'] = baseLevel
+
+        return jsonify({'readings': readings})
+
+def _UserInputFactor(lightstart,lightend,humidity,temp,waterfreq,waterdur,nutrientratio,baselevel):
+    """
+    lightstart<int>
+    lightend<int>
+    humidity<int>
+    temp<int>
+    waterfreq<int>
+    nutrientratio<int>
+    """
+    try:
+        db = MySQLdb.connect(host="okyang.mysql.pythonanywhere-services.com",user=account["username"],passwd=account["password"],db=account["database"])
+        conn = db.cursor()
+        timestamp = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
+        conn.execute('''CREATE TABLE IF NOT EXISTS "CONTROLFACTORS" (
+            TIMESTAMP varchar(255) not null,
+            LIGHTSTARTTIME    float(24),
+            LIGHTENDTIME  float(24),
+            HUMIDITY   float(24),
+            TEMPERATURE   float(24),
+            WATERINGFREQ  float(24),
+            WATERINGDURATION float(24),
+            NUTRIENTRATIO float(24),
+            BASELEVEL float(24)
+        );
+        ''')
+        conn.execute("INSERT INTO CONTROLFACTORS (TIMESTAMP,LIGHTSTARTTIME,LIGHTENDTIME,HUMIDITY,TEMPERATURE,WATERINGFREQ,WATERINGDURATION,NUTRIENTRATIO,BASELEVEL)\nVALUES ('{}',{},{},{},{},{},{},{},{})".format(timestamp,lightstart,lightend,humidity,temp,waterfreq,waterdur,nutrientratio,baselevel))
+        db.commit()
+        conn.close()
+    except Exception as e:
+        return e
+
+
+
 def _updateWateredTable(last_watered):
     """
     Adds the lastwatered timestamp to the database

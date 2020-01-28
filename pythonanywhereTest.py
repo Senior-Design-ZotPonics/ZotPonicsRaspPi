@@ -39,8 +39,26 @@ def postWateredData(last_watered):
     r = requests.post(BASEURL +"/add-lastwatered-data", data=json.dumps(postRequest), headers=HEADERS)
     print("query status: ", r.status_code, r.text)
 
+def postControlFactors(lightstart,lightend,humidity,temp,waterfreq,waterdur,nutrientratio,baselevel):
+    """
+    """
+    timestamp = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
+
+    postRequest = {"controlfactors":[{"timestamp":timestamp,
+                                    "lightstart":lightstart,
+                                    "lightend": lightend,
+                                    "humidity": humidity,
+                                    "temp": temp,
+                                    "waterfreq":waterfreq,
+                                    "waterdur":waterdur,
+                                    "nutrientratio":nutrientratio,
+                                    "baselevel":baselevel
+                                    }]}
+
+    r = requests.post(BASEURL +"/usercontrolgrowth", data=json.dumps(postRequest), headers=HEADERS)
+    print("query status: ", r.status_code, r.text)
+
+
 if __name__ == "__main__":
-    #print(_getAccountInfo())
-    postSensorData(50,50,2,2)
-    #last_watered = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
     #postWateredData(last_watered)
+    postControlFactors(lightstart=8,lightend=22,humidity=80,temp=100,waterfreq=300,waterdur=10,nutrientratio=80,baselevel=10)
