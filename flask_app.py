@@ -164,6 +164,8 @@ def control_factors():
         ]
 
         timestamp, lightStartTime, lightEndTime, humidity, temperature, waterFreq, waterDuration, nutrientRatio, baseLevel = None, None, None, None, None, None, None, None, None
+
+        account = _getAccountInfo("/home/okyang/config.json")
         try:
             db = MySQLdb.connect(host="okyang.mysql.pythonanywhere-services.com",user=account["username"],passwd=account["password"],db=account["database"])
             conn = db.cursor()
@@ -188,8 +190,100 @@ def control_factors():
 
         return jsonify({'readings': readings})
 
+@app.route('/userdemo', methods=['GET', 'POST'])
+def user_demo():
+    """
+    Immediate Control Values will include:
+    - fan+vents for (for 10 seconds)
+    - just vents (for 10 seconds)
+    - lights (for 10 seconds)
+    - water (for 10 seconds)
+    - baselevelnotify (notify)
+
+    The table must also include only one row.
+    """
+    if request.method == 'POST':
+        if not request.json:
+            abort(400)
+        postData = request.json["user_demo"]
+        for row in postData:
+            fanvents = row["fanvents"]
+            vents = row["vents"]
+            lights = row["lights"]
+            water = row["water"]
+            baselevelnotify = row["baselevelnotify"]
+
+            #updates the SensorTable
+            _updateDemoTable(fanvents,vents,lights,water,baselevelnotify)
+
+        return "Created: " + str(request.json), 201
+    else:
+        readings = [
+            {
+                'fanvents': None,
+                'vents': None,
+                'lights': None,
+                'water': None,
+                'baselevelnotify': None,
+            },
+        ]
+
+        fanvents,vents,lights,water,baselevelnotify = None, None, None, None, None
+        # TODO: work on the GET functionality
+        account = _getAccountInfo("/home/okyang/config.json")
+        try:
+            db = MySQLdb.connect(host="okyang.mysql.pythonanywhere-services.com",user=account["username"],passwd=account["password"],db=account["database"])
+            conn = db.cursor()
+            conn.execute("SELECT * FROM USERDEMO LIMIT 1")
+            fanvents,vents,lights,water,baselevelnotify = conn.fetchone()
+
+            #delete all rows in the table so it doesn't activate again
+            conn.execute("DELETE FROM USERDEMO;")
+            #
+            # #commit and close
+            db.commit()
+            conn.close()
+
+        except StopIteration:
+            #this means that the table is empty, don't do anything
+            pass
+
+        # except Exception as e:
+        #     return e
+
+        readings[0]['fanvents'] = fanvents
+        readings[0]['vents'] = vents
+        readings[0]['lights'] = lights
+        readings[0]['water'] = water
+        readings[0]['baselevelnotify'] = baselevelnotify
+
+        return jsonify({'readings': readings})
+
+def _updateDemoTable(fanvents,vents,lights,water,baselevelnotify):
+    """
+    """
+    account = _getAccountInfo("/home/okyang/config.json")
+    try:
+        db = MySQLdb.connect(host="okyang.mysql.pythonanywhere-services.com",user=account["username"],passwd=account["password"],db=account["database"])
+        conn = db.cursor()
+        conn.execute('''CREATE TABLE IF NOT EXISTS USERDEMO (
+            FAN TINYINT,
+            VENTS TINYINT,
+            LIGHTS TINYINT,
+            WATER TINYINT,
+            BASELEVELNOTIFY TINYINT
+        );
+        ''')
+        conn.execute("INSERT INTO USERDEMO (FAN,VENTS,LIGHTS,WATER,BASELEVELNOTIFY)\nVALUES ({},{},{},{},{})".format(fanvents,vents,lights,water,baselevelnotify))
+        db.commit()
+        conn.close()
+    except Exception as e:
+        return e
+
+
 def _UserInputFactor(lightstart,lightend,humidity,temp,waterfreq,waterdur,nutrientratio,baselevel):
     """
+    This function is to help with inputing the control growth factors data.
     lightstart<int>
     lightend<int>
     humidity<int>
@@ -197,11 +291,12 @@ def _UserInputFactor(lightstart,lightend,humidity,temp,waterfreq,waterdur,nutrie
     waterfreq<int>
     nutrientratio<int>
     """
+    account = _getAccountInfo("/home/okyang/config.json")
     try:
         db = MySQLdb.connect(host="okyang.mysql.pythonanywhere-services.com",user=account["username"],passwd=account["password"],db=account["database"])
         conn = db.cursor()
         timestamp = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
-        conn.execute('''CREATE TABLE IF NOT EXISTS "CONTROLFACTORS" (
+        conn.execute('''CREATE TABLE IF NOT EXISTS CONTROLFACTORS (
             TIMESTAMP varchar(255) not null,
             LIGHTSTARTTIME    float(24),
             LIGHTENDTIME  float(24),
@@ -213,20 +308,19 @@ def _UserInputFactor(lightstart,lightend,humidity,temp,waterfreq,waterdur,nutrie
             BASELEVEL float(24)
         );
         ''')
+        db.commit()
         conn.execute("INSERT INTO CONTROLFACTORS (TIMESTAMP,LIGHTSTARTTIME,LIGHTENDTIME,HUMIDITY,TEMPERATURE,WATERINGFREQ,WATERINGDURATION,NUTRIENTRATIO,BASELEVEL)\nVALUES ('{}',{},{},{},{},{},{},{},{})".format(timestamp,lightstart,lightend,humidity,temp,waterfreq,waterdur,nutrientratio,baselevel))
         db.commit()
         conn.close()
     except Exception as e:
         return e
 
-
-
 def _updateWateredTable(last_watered):
     """
     Adds the lastwatered timestamp to the database
     last_watered[str]: timestamp in the format '%Y-%m-%d %H:%M:%S'
     """
-    account = _getAccountInfo("config.json")
+    account = _getAccountInfo("/home/okyang/config.json")
     try:
         db = MySQLdb.connect(host="okyang.mysql.pythonanywhere-services.com",user=account["username"],passwd=account["password"],db=account["database"])
         conn = db.cursor()
@@ -246,7 +340,7 @@ def _updateSensorTable(temperature,humidity,base_level,plant_height):
     base_level<float>: the read base water level value
     plant_height<float>: the read plant height value
     """
-    account = _getAccountInfo("config.json")
+    account = _getAccountInfo("/home/okyang/config.json")
     timestamp = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
     try:
         db = MySQLdb.connect(host="okyang.mysql.pythonanywhere-services.com",user=account["username"],passwd=account["password"],db=account["database"])
@@ -263,6 +357,7 @@ def _getLightStartEnd():
     This function gets the lightStartTime and the lightendTime
     """
     lightStartTime, lightEndTime = 0,0
+    account = _getAccountInfo("/home/okyang/config.json")
     try:
         db = MySQLdb.connect(host="okyang.mysql.pythonanywhere-services.com",user=account["username"],passwd=account["password"],db=account["database"])
         conn = db.cursor()
