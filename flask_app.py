@@ -66,13 +66,12 @@ def get_recentSensorData():
         #this means that the table is empty, don't do anything
         pass
 
-    ## TODO: finish this logic
-    # lightStartTime, lightEndTime = _getLightStartEnd()
-    # hour = datetime.datetime.now().hour #returns hour in 24hr format int
-    # if (hour >= lightStartTime and hour < lightEndTime):
-    #     lightOn = True
-    # else:
-    #     lightOn = False
+    lightStartTime, lightEndTime = _getLightStartEnd()
+    hour = datetime.datetime.now().hour #returns hour in 24hr format int
+    if (hour >= lightStartTime and hour < lightEndTime):
+        lightOn = True
+    else:
+        lightOn = False
 
     readings[0]['lastWateredTimestamp'] = wateredTimestamp
     readings[0]['timestamp'] = timestamp
@@ -80,7 +79,7 @@ def get_recentSensorData():
     readings[0]['humidity'] = humidity
     readings[0]['baseLevel'] = baseLevel
     readings[0]['plantHeight'] = plantHeight
-    readings[0]['lightStatus'] = "True"#str(lightOn) # TODO:
+    readings[0]['lightStatus'] = str(lightOn)
 
     return jsonify({'readings': readings})
 
@@ -109,6 +108,7 @@ def add_sensor_data():
 
         return "Created: " + str(request.json), 201
     else:
+        #TODO: Get lastwatered timestamp
         return "Error"
 
 @app.route('/add-lastwatered-data', methods=['GET','POST'])
@@ -128,6 +128,7 @@ def add_lastwatered():
 
         return "Created: " + str(request.json), 201
     else:
+        #TODO: get the lastwateredtimestamp
         return "Error"
 
 @app.route('/usercontrolgrowth', methods=['GET', 'POST'])
@@ -229,7 +230,6 @@ def user_demo():
         ]
 
         fanvents,vents,lights,water,baselevelnotify = None, None, None, None, None
-        # TODO: work on the GET functionality
         account = _getAccountInfo("/home/okyang/config.json")
         try:
             db = MySQLdb.connect(host="okyang.mysql.pythonanywhere-services.com",user=account["username"],passwd=account["password"],db=account["database"])
