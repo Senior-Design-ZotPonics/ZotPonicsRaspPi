@@ -66,12 +66,16 @@ class ZotPonics():
             GPIO.setup(self.SERVO_PIN,GPIO.OUT)
             GPIO.setup(self.FAN_PIN,GPIO.OUT)
             GPIO.setup(self.ULTRASONIC_TRIG,GPIO.OUT)
-            GPIO.setup(sefl.ULTRAONIC_ECHO,GPIO.IN)
+            GPIO.setup(self.ULTRASONIC_ECHO,GPIO.IN)
+            GPIO.setup(self.DHT11,GPIO.IN)
+            GPIO.setup(self.LIGHT,GPIO.IN)
+            GPIO.setup(self.PUMP,GPIO.IN)
 
             #====Setup servo motor====
             self.servo = GPIO.PWM(self.SERVO_PIN,50)
             self.servo.start(2.5)
             self.closeVent()
+
 
     def run(self,simulateAll=False,temperSim=False,humidSim=False,baseLevelSim=False,plantHeightSim=False,demoMode=False):
         """
