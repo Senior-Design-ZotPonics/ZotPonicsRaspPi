@@ -67,9 +67,10 @@ class ZotPonics():
             GPIO.setup(self.FAN_PIN,GPIO.OUT)
             GPIO.setup(self.ULTRASONIC_TRIG,GPIO.OUT)
             GPIO.setup(self.ULTRASONIC_ECHO,GPIO.IN)
-            GPIO.setup(self.DHT11,GPIO.IN)
-            GPIO.setup(self.LIGHT,GPIO.IN)
-            GPIO.setup(self.PUMP,GPIO.IN)
+            GPIO.setup(self.LIGHT,GPIO.OUT)
+            GPIO.setup(self.PUMP,GPIO.OUT)
+
+            self.dht11_sensor = Adafruit_DHT.DHT11
 
             #====Setup servo motor====
             self.servo = GPIO.PWM(self.SERVO_PIN,50)
@@ -151,7 +152,8 @@ class ZotPonics():
             return 0.0
         else:
             #this would be where we implement sensor GPIO logic
-            return 0.0 #temporary
+            _, temperature = Adafruit_DHT.DHT11.read_retry(self.dht11_sensor,sefl.DHT11)
+            return temperature #temporary
 
     def humidData(self,simulate):
         """
@@ -163,7 +165,8 @@ class ZotPonics():
             return 0.0
         else:
             #this would be where we implement sensor GPIO logic
-            return 0.0 #temporary
+            humidity, _ = Adafruit_DHT.DHT11.read_retry(self.dht11_sensor,sefl.DHT11)
+            return humidity #temporary
 
     def baseLevelData(self,simulate):
         """
@@ -427,21 +430,20 @@ class ZotPonics():
     def dispenseWater(self):
         """
         """
-        # TODO:
         #spit out water
-        pass
+        GPIO.output(self.PUMP, True)
+        time.sleep(self.wateringDuration)
+        GPIO.output(self.PUMP, False)
 
     def turnOnLight(self):
         """
         """
-        # TODO:
-        pass
+        GPIO.output(self.LIGHT, True)
 
     def turnOffLight(self):
         """
         """
-        # TODO:
-        pass
+        GPIO.output(self.LIGHT, False)
 
 if __name__ == "__main__":
     zot = ZotPonics()
