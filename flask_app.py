@@ -255,7 +255,10 @@ def user_demo():
             db = MySQLdb.connect(host="okyang.mysql.pythonanywhere-services.com",user=account["username"],passwd=account["password"],db=account["database"])
             conn = db.cursor()
             conn.execute("SELECT * FROM USERDEMO LIMIT 1")
-            fanvents,vents,lights,water,baselevelnotify = conn.fetchone()
+
+            query = conn.fetchone()
+            if query != None:
+                fanvents,vents,lights,water,baselevelnotify = query
 
             #delete all rows in the table so it doesn't activate again
             conn.execute("DELETE FROM USERDEMO;")
