@@ -128,8 +128,29 @@ def add_lastwatered():
 
         return "Created: " + str(request.json), 201
     else:
-        #TODO: get the lastwateredtimestamp
-        return "Error"
+        readings = [
+            {
+                'lastwatered': None
+            },
+        ]
+
+        last_watered = None
+        account = _getAccountInfo("/home/okyang/config.json")
+        try:
+            db = MySQLdb.connect(host="okyang.mysql.pythonanywhere-services.com",user=account["username"],passwd=account["password"],db=account["database"])
+            conn = db.cursor()
+            conn.execute("SELECT * FROM LAST_WATERED ORDER BY TIMESTAMP LIMIT 1")
+            last_watered = conn.fetchone()
+            conn.close()
+        except StopIteration:
+            #this means that the table is empty, don't do anything
+            pass
+        except Exception as e:
+            return e
+
+        readings[0]['last_watered'] = last_watered
+
+        return jsonify({'readings': readings})
 
 @app.route('/usercontrolgrowth', methods=['GET', 'POST'])
 def control_factors():
@@ -225,7 +246,7 @@ def user_demo():
                 'vents': None,
                 'lights': None,
                 'water': None,
-                'baselevelnotify': None,
+                'baselevelnotify': None
             },
         ]
 
@@ -247,9 +268,8 @@ def user_demo():
         except StopIteration:
             #this means that the table is empty, don't do anything
             pass
-
-        # except Exception as e:
-        #     return e
+        except Exception as e:
+            return e
 
         readings[0]['fanvents'] = fanvents
         readings[0]['vents'] = vents
@@ -365,7 +385,6 @@ def _getLightStartEnd():
         conn.execute("SELECT * FROM CONTROLFACTORS ORDER BY TIMESTAMP DESC LIMIT 1")
 
         _, lightStartTime, lightEndTime, _, _, _, _, _, _ = conn.fetchone()
-        conn.commit()
-    except Exception as e:
-        return e
-    return lightStartTime, lightEndTime
+        db.commit()
+    finally:
+        return (lightStartTime, lightEndTime)
