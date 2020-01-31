@@ -108,8 +108,7 @@ def add_sensor_data():
 
         return "Created: " + str(request.json), 201
     else:
-        #TODO: Get lastwatered timestamp
-        return "Error"
+        return "No GET Method"
 
 @app.route('/add-lastwatered-data', methods=['GET','POST'])
 def add_lastwatered():
