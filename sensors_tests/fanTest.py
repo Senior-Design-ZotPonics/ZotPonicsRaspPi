@@ -13,6 +13,11 @@ try:
     while True:
         GPIO.output(fan, True)
         time.sleep(2)
+<<<<<<< HEAD
+        #GPIO.output(fan, False)
+        #time.sleep(2)
+=======
+>>>>>>> 28f7ad4b9267860af0daa55aee397a8e28f94b4f
 
 except KeyboardInterrupt:
     GPIO.cleanup()

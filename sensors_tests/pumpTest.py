@@ -9,7 +9,11 @@ GPIO.setup(pump,GPIO.OUT)
 # Turn off to off lights
 
 try:
-    GPIO.output(pump, True)
+    while True:
+        GPIO.output(pump, True)
+        time.sleep(2)
+        GPIO.output(pump, False)
+        time.sleep(2)
 
 except KeyboardInterrupt:
     GPIO.cleanup()
