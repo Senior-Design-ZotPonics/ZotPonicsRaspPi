@@ -283,7 +283,7 @@ class ZotPonics():
         """
         timestamp = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
         postRequest = {"waterTime":[{"last_watered":timestamp}]}
-        r = requests.post(BASEURL +"/add-lastwatered-data") data=json.dumps(postRequest), headers=HEADERS)
+        r = requests.post(BASEURL +"/add-lastwatered-data", data=json.dumps(postRequest), headers=HEADERS)
 
         print("query status: ", r.status_code, r.text)
 
