@@ -58,7 +58,7 @@ def get_recentSensorData():
         db = MySQLdb.connect(host="okyang.mysql.pythonanywhere-services.com",user=account["username"],passwd=account["password"],db=account["database"])
         conn = db.cursor()
         conn.execute("SELECT * FROM LAST_WATERED ORDER BY TIMESTAMP DESC LIMIT 1;")
-        wateredTimestamp = conn.fetchone() #converting it back into a datetime object
+        wateredTimestamp = conn.fetchone()[0] #converting it back into a datetime object
         cursor = conn.execute("SELECT * FROM SENSOR_DATA ORDER BY TIMESTAMP DESC LIMIT 1;")
         timestamp, temperature, humidity, baseLevel, plantHeight = conn.fetchone()
         conn.close()
@@ -139,7 +139,7 @@ def add_lastwatered():
             db = MySQLdb.connect(host="okyang.mysql.pythonanywhere-services.com",user=account["username"],passwd=account["password"],db=account["database"])
             conn = db.cursor()
             conn.execute("SELECT * FROM LAST_WATERED ORDER BY TIMESTAMP LIMIT 1")
-            last_watered = conn.fetchone()
+            last_watered = conn.fetchone()[0]
             conn.close()
         except StopIteration:
             #this means that the table is empty, don't do anything
