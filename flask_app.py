@@ -129,7 +129,7 @@ def add_lastwatered():
     else:
         readings = [
             {
-                'lastwatered': None
+                'last_watered': None
             },
         ]
 
