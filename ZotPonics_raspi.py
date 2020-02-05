@@ -30,7 +30,7 @@ class ZotPonics():
         self.tempMin = 60 #Fahrenheit #<oky>: Not used, because we don't have heating element
 
         #======Data base variables======
-        self.sensorFreq = 300 #seconds #<oky>: Not used yet
+        self.sensorFreq = 5 #seconds #<oky>: Not used yet
 
         self.lightStartTime = 8 #int in 24hr format
         self.lightEndTime = 18 #int in 24hr format
@@ -119,10 +119,10 @@ class ZotPonics():
                 print("Control Growth Factors:", self.lightStartTime, self.lightEndTime, self.humidityMax, self.tempMax, self.wateringFreq, self.wateringDuration)
 
                 #====== APPLY CONTROL GROWTH FACTORS LOGIC=====
-                self.controlGrowthFactors(sensorData) #<sid>
+                self.controlGrowthFactors(sensorData)
 
                 #=======IDLE STATE=========
-                time.sleep(15) #just for testing
+                time.sleep(self.sensorFreq) #just for testing
 
             if (demoMode):
                 #======READ USER ACTIVIATED CONTROLS=========
@@ -152,7 +152,7 @@ class ZotPonics():
 
         #-----------Add to Database----------
         self.updateDatabase(temperature,humidity,baseLevel,plantHeight)
-        return (timestamp,temperature,humidity,baseLevel)
+        return (None,temperature,humidity,baseLevel,plantHeight)
 
     def temperData(self,simulate):
         """
@@ -288,6 +288,7 @@ class ZotPonics():
 
         print("query status: ", r.status_code, r.text)
 
+    #TODO: Fix the logic of this function
     def controlGrowthFactors(self,sensorData):
         """
         sensorData<tuple>: this is a list  of (timestamp,temperature,humidity,baseLevel)
@@ -316,12 +317,10 @@ class ZotPonics():
 
         #----Check base level and notify-------
         #<oky> need to change logic here
-        if (sensorData[3] <= self.baseLevelMin):
-            #self.water = True
+        if (sensorData[3] <= self.baseLevelMin and sensorData[3]>0):
             print("REFILL NUTRIENT WATER")
         else:
             pass
-            #self.water = False
 
         #------check watering frequency and water----------
         lastWateredTimestamp = self.LastWateredTimestamp()
@@ -391,11 +390,7 @@ class ZotPonics():
 
     def readUserActControls(self):
         """
-        <oky>: FOCUS ON THIS LATER
-        This will be determined later by how we interface the mobile app.
-        Right now to simulate this we will just have another table in
-        zotbins.db
-
+        This function is for the user demo feature.
         Immediate Control Values will include:
         - fan+vents for (for 10 seconds)
         - just vents (for 10 seconds)
