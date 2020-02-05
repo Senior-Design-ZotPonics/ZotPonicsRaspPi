@@ -9,7 +9,15 @@ Notes:
 import sqlite3
 import datetime
 import time
+import signal
+import Adafruit_DHT
+import RPi.GPIO as GPIO
 
+class Timeout(Exception):
+    """
+    This is for the timed signal excpetion
+    """
+    pass
 
 class ZotPonics():
     def __init__(self):
@@ -46,11 +54,12 @@ class ZotPonics():
         """
         Function to help simulate the sensors and manage GPIO import
         """
+        #print("setting up")
         if simulateAll:
             pass
         else:
-            import Adafruit_DHT.DHT11
-            import RPi.GPIO as GPIO
+            #import Adafruit_DHT
+            #import RPi.GPIO as GPIO
             GPIO.setmode(GPIO.BCM)
 
             #====Set pin numbers====
@@ -151,9 +160,14 @@ class ZotPonics():
         if simulate:
             return 0.0
         else:
-            #this would be where we implement sensor GPIO logic
-            _, temperature = Adafruit_DHT.DHT11.read_retry(self.dht11_sensor,sefl.DHT11)
-            return temperature #temporary
+            signal.signal(signal.SIGALRM, self._handler)
+            signal.alarm(5)
+            try:
+                #this would be where we implement sensor GPIO logic
+                _, temperature = Adafruit_DHT.read_retry(self.dht11_sensor,self.DHT11)
+                return temperature #temporary
+            except Timeout:
+                return -1 #we know it failed
 
     def humidData(self,simulate):
         """
@@ -164,9 +178,14 @@ class ZotPonics():
         if simulate:
             return 0.0
         else:
-            #this would be where we implement sensor GPIO logic
-            humidity, _ = Adafruit_DHT.DHT11.read_retry(self.dht11_sensor,sefl.DHT11)
-            return humidity #temporary
+            signal.signal(signal.SIGALRM, self._handler)
+            signal.alarm(5)
+            try:
+                #this would be where we implement sensor GPIO logic
+                humidity, _ = Adafruit_DHT.read_retry(self.dht11_sensor,self.DHT11)
+                return humidity #temporary
+            except Timeout: 
+                return -1 #wee know it failed
 
     def baseLevelData(self,simulate):
         """
@@ -189,7 +208,7 @@ class ZotPonics():
             return 0.0
         else:
             #set the Trigger to HIGH
-            GPIO.output(self.ULTRAONIC_TRIG, True)
+            GPIO.output(self.ULTRASONIC_TRIG, True)
 
             #set the Trigger after 0.01 ms to LOW
             time.sleep(0.00001)
@@ -445,6 +464,13 @@ class ZotPonics():
         """
         GPIO.output(self.LIGHT, False)
 
+    def _handler(self,sig,frame):
+        """
+        This is for the timed signal to limit the amount of time it takes for
+        a function to run. 
+        """
+        raise Timeout
+
 if __name__ == "__main__":
     zot = ZotPonics()
-    zot.run(simulateAll=True)
+    zot.run(simulateAll=False)

@@ -11,9 +11,9 @@ GPIO.setup(light,GPIO.OUT)
 try:
     while True:
         GPIO.output(light, True)
-        Time.sleep(2)
+        time.sleep(.5)
         GPIO.output(light, False)
-        Time.sleep(2)
+        time.sleep(.5)
 
 except KeyboardInterrupt:
     GPIO.cleanup()
