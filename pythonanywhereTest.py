@@ -76,5 +76,4 @@ if __name__ == "__main__":
     # postWateredData(last_watered)
 
     #postControlFactors(lightstart=8,lightend=22,humidity=80,temp=100,waterfreq=300,waterdur=10,nutrientratio=80,baselevel=10)
-
     postUserDemo(1,1,1,1,1)
