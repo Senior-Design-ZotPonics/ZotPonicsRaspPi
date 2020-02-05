@@ -408,20 +408,18 @@ class ZotPonics():
         """
         row=(0,0,0,0,0)
         try:
-            conn = sqlite3.connect("zotponics.db")
-            cursor = conn.execute("SELECT * FROM USERDEMO LIMIT 1")
-            row = next(cursor)
+            r = requests.get(BASEURL+"/userdemo")
+            s = r.json()["readings"][0]
+            r.close()
+            fanvents = s["fanvents"]
+            vents = s["vents"]
+            lights = s["lights"]
+            water = s["water"]
+            baselevelnotify = s["baselevelnotify"]
+            row = (fanvents,vents,lights,water,baselevelnotify)
+        except Exception as e:
+            print(e)
 
-            #delete all rows in the table so it doesn't activate again
-            conn.execute("DELETE FROM USERDEMO")
-            conn.commit()
-
-        except StopIteration:
-            #this means that the table is empty, nothing should be activated
-            pass
-
-        finally:
-            conn.close()
         return row
 
     def runFan(self):
