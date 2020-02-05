@@ -272,7 +272,7 @@ class ZotPonics():
             r = requests.get(BASEURL+"/add-lastwatered-data")
             s = r.json()
             r.close()
-            timestamp = s['readings'][0]['last_watered']
+            timestamp = datetime.strptime(s['readings'][0]['last_watered'],'%Y-%m-%d %H:%M:%S')
         except Exception as e:
             print(e)
 
