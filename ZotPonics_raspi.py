@@ -16,6 +16,7 @@ import json
 import requests
 
 BASEURL = "http://okyang.pythonanywhere.com"
+HEADERS = {"Content-Type": "application/json","Accept": "application/json"}
 
 class Timeout(Exception):
     """
