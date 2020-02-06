@@ -10,6 +10,7 @@ Resources:
 Notes:
 - This file is for the pythonanywhere.com website
 - for pythonanywhere console: pip install mysqlclient
+- on pythonanywhere console make sure to edit the .bashrc file to include: export TZ="US/Pacific"
 """
 
 from flask import Flask, jsonify, make_response, request
@@ -348,9 +349,9 @@ def _updateWateredTable(last_watered):
     try:
         db = MySQLdb.connect(host="okyang.mysql.pythonanywhere-services.com",user=account["username"],passwd=account["password"],db=account["database"],autocommit=True)
         conn = db.cursor()
-        conn.execute('''CREATE TABLE IF NOT EXISTS "LAST_WATERED" (TIMESTAMP varchar(255) not null);''')
+        conn.execute('''CREATE TABLE IF NOT EXISTS LAST_WATERED (TIMESTAMP varchar(255) not null);''')
         conn.execute("INSERT INTO LAST_WATERED (TIMESTAMP)\nVALUES ('{}')".format(last_watered))
-        #db.commit()
+        db.commit()
         conn.close()
     except Exception as e:
         return e
