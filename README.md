@@ -1,4 +1,4 @@
-# ZotPonicsRaspPi Quick Start
+# ZotPonicsRaspPi Quick Start for Local Version
 This is the code for the raspberry pi systems designs of the Smart Hydroponics System, ZotPonics.
 ## Authors
 Sidney Lau: B.S. Computer Science and Engineering Major, Class of 2020, University of California, Irvine
@@ -16,6 +16,7 @@ Sidney Lau: B.S. Computer Science and Engineering Major, Class of 2020, Universi
 
 # Set-Up
 This code was developed with Python 3.7.2
+This code is for the local version of ZotPonics. That means that the database is hosted locally with SQLITE. All the code this guide is referring to is in the `local_version` folder.
 
 Make sure that you have the following Python libraries installed:
 1. sqlite3
@@ -36,12 +37,12 @@ git clone https://github.com/adafruit/Adafruit_Python_DHT.git && cd Adafruit_Pyt
 sudo python setup.py install
 ```
 
-To set up the database, we use sqlite3. You can run `usuerSimulate.py` to quickly set up the zotponics database with random values generated for the database [tables](wiki_content/database_relation.png): USERDEMO, and CONTROLFACTORS. The other tables, SENSOR_DATA and LAST_WATERED will be populated once you run `ZotPonics_raspi.py`
+To set up the database, we use sqlite3. You can run `usuerSimulate.py` to quickly set up the zotponics database with random values generated for the database [tables](wiki_content/database_relation.png): USERDEMO, and CONTROLFACTORS. The other tables, SENSOR_DATA and LAST_WATERED will be populated once you run `ZotPonics_raspi_sqlite_version.py`
 
 # Running ZotPonics Raspberry Pi Code
 To run it on the Raspberry Pi just run the following command:
 ```
-python3 ZotPonics_raspi.py
+python3 ZotPonics_raspi_sqlite_version.py
 ```
 # Testing
 For you can use the `userSimulate.py` file.

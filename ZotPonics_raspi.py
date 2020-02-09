@@ -445,21 +445,15 @@ class ZotPonics():
         self.servo.ChangeDutyCycle(3)
 
     def dispenseWater(self):
-        """
-        """
         #spit out water
         GPIO.output(self.PUMP, True)
         time.sleep(self.wateringDuration)
         GPIO.output(self.PUMP, False)
 
     def turnOnLight(self):
-        """
-        """
         GPIO.output(self.LIGHT, True)
 
     def turnOffLight(self):
-        """
-        """
         GPIO.output(self.LIGHT, False)
 
     def _handler(self,sig,frame):
