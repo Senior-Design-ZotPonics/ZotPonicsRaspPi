@@ -6,9 +6,11 @@ Dependencies:
 Resources:
 - https://help.pythonanywhere.com/pages/UsingMySQL
 - https://mysqlclient.readthedocs.io/
+- https://blog.miguelgrinberg.com/post/designing-a-restful-api-with-python-and-flask
 Notes:
 - This file is for the pythonanywhere.com website
 - for pythonanywhere console: pip install mysqlclient
+- on pythonanywhere console make sure to edit the .bashrc file to include: export TZ="US/Pacific"
 """
 
 from flask import Flask, jsonify, make_response, request
@@ -118,6 +120,7 @@ def add_lastwatered():
     if request.method == 'POST':
         if not request.json:
             abort(400)
+            return "error", 400
         postData = request.json["waterTime"]
         for row in postData:
             last_watered = row["last_watered"]
@@ -344,9 +347,9 @@ def _updateWateredTable(last_watered):
     """
     account = _getAccountInfo("/home/okyang/config.json")
     try:
-        db = MySQLdb.connect(host="okyang.mysql.pythonanywhere-services.com",user=account["username"],passwd=account["password"],db=account["database"])
+        db = MySQLdb.connect(host="okyang.mysql.pythonanywhere-services.com",user=account["username"],passwd=account["password"],db=account["database"],autocommit=True)
         conn = db.cursor()
-        conn.execute('''CREATE TABLE IF NOT EXISTS "LAST_WATERED" (TIMESTAMP varchar(255) not null);''')
+        conn.execute('''CREATE TABLE IF NOT EXISTS LAST_WATERED (TIMESTAMP varchar(255) not null);''')
         conn.execute("INSERT INTO LAST_WATERED (TIMESTAMP)\nVALUES ('{}')".format(last_watered))
         db.commit()
         conn.close()
