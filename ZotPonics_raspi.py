@@ -327,7 +327,8 @@ class ZotPonics():
         if (lastWateredTimestamp == None):
             self.water = True
         else:
-            timeDifference = (datetime.datetime.fromtimestamp(time.time()) - lastWateredTimestamp).total_seconds()
+            print("CHECKING WATERING CALCULATION:",lastWateredTimestamp,datetime.datetime.now())
+            timeDifference = (datetime.datetime.now() - lastWateredTimestamp).total_seconds()
             print("timeDifference:", timeDifference)
             if ( timeDifference > self.wateringFreq ):
                 self.water = True
