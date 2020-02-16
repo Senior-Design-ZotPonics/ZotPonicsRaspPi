@@ -220,27 +220,26 @@ class ZotPonics():
             StartTime = time.time()
             StopTime = time.time()
 
-            ultrasonicFailed = False
             #save StartTime
-            for i in range(500):
-                StartTime = time.time()
-                if GPIO.input(self.ULTRASONIC_ECHO) != 0:
-                    break
-                if i == 499: ultrasonicFailed = True
+            signal.signal(signal.SIGALRM, self._handler)
+            signal.alarm(5)
+            try:
+                while True:
+                    StartTime = time.time()
+                    if GPIO.input(self.ULTRASONIC_ECHO) != 0:
+                        break
 
-            #save time of arrival
-            for j in range(500):
-                StopTime = time.time()
-                if GPIO.input(self.ULTRASONIC_ECHO) != 0:
-                    break
-                if j == 499: ultrasonicFailed = True
+                #save time of arrival
+                while True:
+                    StopTime = time.time()
+                    if GPIO.input(self.ULTRASONIC_ECHO) != 0:
+                        break
+            except Timeout:
+                return -1 #we know it failed
 
-            if ultrasonicFailed:
-                return -1 #we know the sensor failed
-            else:
-                TimeElapsed = StopTime - StartTime
-                distance = (TimeElapsed*34300)/2
-                return distance
+            TimeElapsed = StopTime - StartTime
+            distance = (TimeElapsed*34300)/2
+            return distance
 
     def updateDatabase(self,temperature,humidity,base_level,plant_height):
         """
