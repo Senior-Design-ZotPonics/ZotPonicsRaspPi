@@ -1,7 +1,7 @@
 import RPi.GPIO as GPIO
 import time
 
-fan = 26 #GPIO pin
+fan = 6 #GPIO pin
 
 GPIO.setmode(GPIO.BCM)
 

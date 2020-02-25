@@ -69,12 +69,12 @@ class ZotPonics():
 
             #====Set pin numbers====
             self.SERVO_PIN = 25 #GPIO 25
-            self.FAN_PIN = 26 #GPIO 26
+            self.FAN_PIN = 6 #GPIO 26
             self.ULTRASONIC_TRIG = 23 #GPIO 23
             self.ULTRASONIC_ECHO = 24 #GPIO 24
             self.DHT11 = 4 #GPIO 4, for the temperature and humidity sensor
             self.LIGHT = 5 #GPIO 5
-            self.PUMP = 6 #GPIO 6
+            self.PUMP = 26 #GPIO 6
 
             #====Setup pins====
             GPIO.setup(self.SERVO_PIN,GPIO.OUT)
