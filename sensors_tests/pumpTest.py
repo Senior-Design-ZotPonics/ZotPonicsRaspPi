@@ -1,6 +1,6 @@
 import RPi.GPIO as GPIO
 import time
-pump = 6 #GPIO pin
+pump = 26 #GPIO pin
 
 GPIO.setmode(GPIO.BCM)
 
