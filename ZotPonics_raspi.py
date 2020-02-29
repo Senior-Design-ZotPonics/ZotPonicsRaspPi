@@ -465,4 +465,8 @@ class ZotPonics():
 
 if __name__ == "__main__":
     zot = ZotPonics()
-    zot.run(simulateAll=False)
+    try:
+        zot.run(simulateAll=False)
+    except Exception as e:
+        GPIO.cleanup()
+        raise e
