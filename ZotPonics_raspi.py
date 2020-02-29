@@ -84,6 +84,14 @@ class ZotPonics():
             GPIO.setup(self.LIGHT,GPIO.OUT)
             GPIO.setup(self.PUMP,GPIO.OUT)
 
+
+            #====Set pins as False======
+            GPIO.output(self.FAN_PIN, False)
+            GPIO.output(self.LIGHT, False)
+            GPIO.output(self.PUMP, False)
+
+
+            #====Set up the Temp and Humidity Sensor=====
             self.dht11_sensor = Adafruit_DHT.DHT11
 
             #====Setup servo motor====
@@ -119,7 +127,7 @@ class ZotPonics():
                 print("Control Growth Factors:", self.lightStartTime, self.lightEndTime, self.humidityMax, self.tempMax, self.wateringFreq, self.wateringDuration)
 
                 #====== APPLY CONTROL GROWTH FACTORS LOGIC=====
-                self.controlGrowthFactors(sensorData)
+                #self.controlGrowthFactors(sensorData)
 
                 #=======IDLE STATE=========
                 time.sleep(self.sensorFreq) #just for testing
@@ -464,8 +472,8 @@ class ZotPonics():
         raise Timeout
 
 if __name__ == "__main__":
-    zot = ZotPonics()
     try:
+        zot = ZotPonics()
         zot.run(simulateAll=False)
     except Exception as e:
         GPIO.cleanup()
