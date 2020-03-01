@@ -15,6 +15,7 @@ import sqlite3
 import datetime
 import time
 import signal
+from contextlib import contextmanager
 import Adafruit_DHT
 import RPi.GPIO as GPIO
 import json
@@ -132,7 +133,7 @@ class ZotPonics():
                 print("Control Growth Factors:", self.lightStartTime, self.lightEndTime, self.humidityMax, self.tempMax, self.wateringFreq, self.wateringDuration)
 
                 #====== APPLY CONTROL GROWTH FACTORS LOGIC=====
-                #self.controlGrowthFactors(sensorData)
+                self.controlGrowthFactors(sensorData)
 
                 #=======IDLE STATE=========
                 time.sleep(self.sensorFreq) #just for testing
