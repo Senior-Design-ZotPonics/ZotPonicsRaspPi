@@ -3,7 +3,12 @@ Authors: Sid Lau, Jason Lim, Kathy Nguyen, Owen Yang
 Organization: ZotPonics Inc.
 Python Version 3.7
 Notes:
-- Database is "zotponics.db" for now.
+- Database is set up on pythonanywhere.com
+
+Resources:
+- https://stackoverflow.com/questions/366682/how-to-limit-execution-time-of-a-function-call-in-python
+
+
 """
 
 import sqlite3
@@ -171,12 +176,10 @@ class ZotPonics():
         if simulate:
             return 0.0
         else:
-            signal.signal(signal.SIGALRM, self._handler)
-            signal.alarm(5)
             try:
-                #this would be where we implement sensor GPIO logic
-                _, temperature = Adafruit_DHT.read_retry(self.dht11_sensor,self.DHT11)
-                return temperature #temporary
+                with self.time_limit(5):
+                    _, temperature = Adafruit_DHT.read_retry(self.dht11_sensor,self.DHT11)
+                    return temperature #temporary
             except Timeout:
                 return -1 #we know it failed
 
@@ -189,12 +192,10 @@ class ZotPonics():
         if simulate:
             return 0.0
         else:
-            signal.signal(signal.SIGALRM, self._handler)
-            signal.alarm(5)
             try:
-                #this would be where we implement sensor GPIO logic
-                humidity, _ = Adafruit_DHT.read_retry(self.dht11_sensor,self.DHT11)
-                return humidity #temporary
+                with self.time_limit(5):
+                    humidity, _ = Adafruit_DHT.read_retry(self.dht11_sensor,self.DHT11)
+                    return humidity #temporary
             except Timeout:
                 return -1 #wee know it failed
 
@@ -228,20 +229,18 @@ class ZotPonics():
             StartTime = time.time()
             StopTime = time.time()
 
-            #save StartTime
-            signal.signal(signal.SIGALRM, self._handler)
-            signal.alarm(5)
             try:
-                while True:
-                    StartTime = time.time()
-                    if GPIO.input(self.ULTRASONIC_ECHO) != 0:
-                        break
+                with self.time_limit(5):
+                    while True:
+                        StartTime = time.time()
+                        if GPIO.input(self.ULTRASONIC_ECHO) != 0:
+                            break
 
-                #save time of arrival
-                while True:
-                    StopTime = time.time()
-                    if GPIO.input(self.ULTRASONIC_ECHO) != 0:
-                        break
+                    #save time of arrival
+                    while True:
+                        StopTime = time.time()
+                        if GPIO.input(self.ULTRASONIC_ECHO) != 0:
+                            break
             except Timeout:
                 return -1 #we know it failed
 
@@ -463,6 +462,21 @@ class ZotPonics():
 
     def turnOffLight(self):
         GPIO.output(self.LIGHT, False)
+
+    @contextmanager
+    def time_limit(self,seconds):
+        """
+        This is for the timed signal to limit the amount of time it takes for
+        a function to run.
+        """
+        def signal_handler(signum, frame):
+            raise TimeoutException("Timed out!")
+        signal.signal(signal.SIGALRM, self._handler)
+        signal.alarm(seconds)
+        try:
+            yield
+        finally:
+            signal.alarm(0)
 
     def _handler(self,sig,frame):
         """
