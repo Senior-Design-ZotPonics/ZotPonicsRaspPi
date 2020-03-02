@@ -28,6 +28,7 @@ def postSensorData(temperature,humidity,base_level,plant_height):
 
     r = requests.post(BASEURL +"/add-sensor-data", data=json.dumps(postRequest), headers=HEADERS)
     print("query status: ", r.status_code, r.text)
+    return r.status_code
 
 def postWateredData(last_watered):
     """
@@ -38,6 +39,8 @@ def postWateredData(last_watered):
 
     r = requests.post(BASEURL +"/add-lastwatered-data", data=json.dumps(postRequest), headers=HEADERS)
     print("query status: ", r.status_code, r.text)
+    return r.status_code
+
 
 def postControlFactors(lightstart,lightend,humidity,temp,waterfreq,waterdur,nutrientratio,baselevel):
     """
@@ -57,6 +60,7 @@ def postControlFactors(lightstart,lightend,humidity,temp,waterfreq,waterdur,nutr
 
     r = requests.post(BASEURL +"/usercontrolgrowth", data=json.dumps(postRequest), headers=HEADERS)
     print("query status: ", r.status_code, r.text)
+    return r.status_code
 
 def postUserDemo(fanvents,vents,lights,water,baselevelnotify):
     postRequest = {"user_demo":[{"fanvents":fanvents,
@@ -68,6 +72,27 @@ def postUserDemo(fanvents,vents,lights,water,baselevelnotify):
 
     r = requests.post(BASEURL +"/userdemo", data=json.dumps(postRequest), headers=HEADERS)
     print("query status: ", r.status_code, r.text)
+    return r.status_code
+
+def testAll():
+    """
+    This function is used to test all the basic API's post functions.
+    """
+    print("TESTING /add-sensor-data")
+    assert(postSensorData(12,50,None,1) == 201)
+
+    print("==TESTING /add-lastwatered-data==")
+    last_watered = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')
+    assert(postWateredData(last_watered) == 201)
+
+    print("==TESTING /usercontrolgrowth==")
+    assert( postControlFactors(lightstart=8,lightend=18,humidity=80,temp=28,waterfreq=300,waterdur=100,nutrientratio=80,baselevel=40) == 201)
+
+    print("==TESTING /userdemo==")
+    assert( postUserDemo(1,1,1,1,1) == 201 )
+
+    print("==ALL TESTS PASSED==")
+
 
 if __name__ == "__main__":
     #postSensorData(12,50,None,1)
@@ -76,4 +101,5 @@ if __name__ == "__main__":
     # postWateredData(last_watered)
 
     #postControlFactors(lightstart=8,lightend=22,humidity=80,temp=100,waterfreq=300,waterdur=10,nutrientratio=80,baselevel=10)
-    postUserDemo(1,1,1,1,1)
+    #postUserDemo(1,1,1,1,1)
+    testAll()
