@@ -36,7 +36,7 @@ class ZotPonics():
         self.tempMin = 60 #Fahrenheit #<oky>: Not used, because we don't have heating element
 
         #======Data base variables======
-        self.sensorFreq = 900 #seconds #<oky>: Not used yet
+        self.sensorFreq = 10 #900 #seconds #<oky>: Not used yet
 
         self.lightStartTime = 8 #int in 24hr format
         self.lightEndTime = 18 #int in 24hr format
