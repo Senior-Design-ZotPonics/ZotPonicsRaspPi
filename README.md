@@ -25,10 +25,15 @@ Make sure that you have the following Python libraries installed:
 
 Make sure you also set up the `zotponics.db` database (see below for more details)
 
+**Set up Flask**
+
 To get the Flask library run this in the terminal:
 ```
 pip install flask
 ```
+
+**Set up Adafruit_DHT11 (Temperature and Humidity Sensor)**
+
 To get the Adafruit_DHT library run this in the terminal:
 ```
 sudo apt-get update
@@ -37,7 +42,14 @@ git clone https://github.com/adafruit/Adafruit_Python_DHT.git && cd Adafruit_Pyt
 sudo python setup.py install
 ```
 
-To set up the database, we use sqlite3. You can run `usuerSimulate.py` to quickly set up the zotponics database with random values generated for the database [tables](wiki_content/database_relation.png): USERDEMO, and CONTROLFACTORS. The other tables, SENSOR_DATA and LAST_WATERED will be populated once you run `ZotPonics_raspi_sqlite_version.py`
+**Setting up pythonanywhere**
+
+Please see the ZotPonics API Documentation for Set-up [here](https://github.com/Senior-Design-ZotPonics/ZotPonicsRaspPi/wiki/ZotPonics-API-Documentation)
+
+**Deprecated Section**
+
+To set up the database locally, we use the files in the `local_version` folder. It uses sqlite3, a local database. You can run `userSimulate.py` to quickly set up the zotponics database with random values generated for the database [tables](wiki_content/database_relation.png): USERDEMO, and CONTROLFACTORS. The other tables, SENSOR_DATA and LAST_WATERED will be populated once you run `ZotPonics_raspi_sqlite_version.py`
+
 
 # Running ZotPonics Raspberry Pi Code
 To run it on the Raspberry Pi just run the following command:

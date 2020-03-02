@@ -43,7 +43,7 @@ class ZotPonics():
 
         self.humidityMax = 80 #percentage
 
-        self.tempMax = 100 #Fahrenheit
+        self.tempMax = 28 #Fahrenheit
 
         self.wateringFreq = 300 #seconds
         self.wateringDuration = 100 #seconds
