@@ -141,7 +141,7 @@ def add_lastwatered():
         try:
             db = MySQLdb.connect(host="okyang.mysql.pythonanywhere-services.com",user=account["username"],passwd=account["password"],db=account["database"])
             conn = db.cursor()
-            conn.execute("SELECT * FROM LAST_WATERED ORDER BY TIMESTAMP LIMIT 1")
+            conn.execute("SELECT * FROM LAST_WATERED ORDER BY TIMESTAMP DESC LIMIT 1;")
             last_watered = conn.fetchone()[0]
             conn.close()
         except StopIteration:
