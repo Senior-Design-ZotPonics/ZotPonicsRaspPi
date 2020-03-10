@@ -130,7 +130,8 @@ class ZotPonics():
                 #======READ CONTROl GROWTH FACTORS====
                 _, self.lightStartTime, self.lightEndTime, self.humidityMax, self.tempMax, self.wateringFreq, self.wateringDuration, self.nutrientRatio, self.baseLevelMin = self.readUserControlFactors()
 
-                print("Control Growth Factors:", self.lightStartTime, self.lightEndTime, self.humidityMax, self.tempMax, self.wateringFreq, self.wateringDuration)
+                print("Control Growth Factors:", "light start:",self.lightStartTime, "| light end:", self.lightEndTime, "| humidity:", self.humidityMax, "| tempMax: ",
+                      self.tempMax, "| watering frequency:", self.wateringFreq, "| watering duration:", self.wateringDuration)
 
                 #====== APPLY CONTROL GROWTH FACTORS LOGIC=====
                 self.controlGrowthFactors(sensorData)
@@ -178,7 +179,7 @@ class ZotPonics():
             return 0.0
         else:
             try:
-                with self.time_limit(5):
+                with self.time_limit(10):
                     _, temperature = Adafruit_DHT.read_retry(self.dht11_sensor,self.DHT11)
                     return temperature #temporary
             except Timeout:
@@ -194,7 +195,7 @@ class ZotPonics():
             return 0.0
         else:
             try:
-                with self.time_limit(5):
+                with self.time_limit(10):
                     humidity, _ = Adafruit_DHT.read_retry(self.dht11_sensor,self.DHT11)
                     return humidity #temporary
             except Timeout:
@@ -232,16 +233,10 @@ class ZotPonics():
 
             try:
                 with self.time_limit(5):
-                    while True:
+                    while GPIO.input(self.ULTRASONIC_ECHO ) == 0:
                         StartTime = time.time()
-                        if GPIO.input(self.ULTRASONIC_ECHO) != 0:
-                            break
-
-                    #save time of arrival
-                    while True:
+                    while GPIO.input(self.ULTRASONIC_ECHO) == 1:
                         StopTime = time.time()
-                        if GPIO.input(self.ULTRASONIC_ECHO) != 0:
-                            break
             except Timeout:
                 return -1 #we know it failed
 
@@ -430,13 +425,13 @@ class ZotPonics():
         """
         Run fan by setting fan GPIO pin to true
         """
-        GPIO.output(fan, True)
+        GPIO.output(self.FAN_PIN, True)
 
     def stopFan(self):
         """
         Stop fan by setting fan GPIO pin to false
         """
-        GPIO.output(fan, False)
+        GPIO.output(self.FAN_PIN, False)
 
     def openVent(self):
         """
