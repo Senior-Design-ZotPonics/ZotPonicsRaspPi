@@ -28,17 +28,28 @@ GPIO.setup(servo,GPIO.OUT)
 # duty cycle for 180 degree = 12%
 
 
-p=GPIO.PWM(servo,50)# 50hz frequency
+def ventMove(cycle):
+    p=GPIO.PWM(servo,50)
+    p.start(2.5) #starting duty cycle (it sets the servo to 0 degree)
+    p.ChangeDutyCycle(cycle)
+    time.sleep(1)
+    p.stop()
 
-p.start(2.5)# starting duty cycle ( it set the servo to 0 degree )
+def ventOff():
+    p=GPIO.PWM(servo,50)
+    p.start(2.5)
+    p.ChangeDutyCycle(12)
+    time.sleep(1)
+    p.stop()
 
 
-try:
-       while True:
-           for x in range(2):
-             p.ChangeDutyCycle(control[x])
-             print(control[x])
-             time.sleep(2)
 
-except KeyboardInterrupt:
-    GPIO.cleanup()
+if __name__ == "__main__":
+    try:
+        while True:
+            for x in range(2):
+                ventMove(control[x])
+                time.sleep(2)
+
+    except KeyboardInterrupt:
+        GPIO.cleanup()

@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Name=ZotPonics_Running
+Comment=ZotPonics
+Exec=bash /home/pi/ZotPonicsRaspPi/runZotPonicsRP.sh &
+Path=/home/pi
+Terminal=false
+StartupNotify=true
+Type=Application
+Categories=Utility;Application
