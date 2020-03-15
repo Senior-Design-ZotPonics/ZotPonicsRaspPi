@@ -42,7 +42,9 @@ git clone https://github.com/adafruit/Adafruit_Python_DHT.git && cd Adafruit_Pyt
 sudo python setup.py install
 ```
 
-**Setting up pythonanywhere**
+**Setting up PythonAnywhere**
+
+Python Anywhere is an online service where users can host their Python websites. We used Python Anywhere to host our API's.
 
 Please see the ZotPonics API Documentation for Set-up [here](https://github.com/Senior-Design-ZotPonics/ZotPonicsRaspPi/wiki/ZotPonics-API-Documentation)
 
