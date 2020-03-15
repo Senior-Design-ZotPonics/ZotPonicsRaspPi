@@ -1,4 +1,4 @@
-# ZotPonicsRaspPi Quick Start for Local Version
+# ZotPonicsRaspPi Quick Start
 This is the code for the raspberry pi systems designs of the Smart Hydroponics System, ZotPonics.
 ## Authors
 Sidney Lau: B.S. Computer Science and Engineering Major, Class of 2020, University of California, Irvine
@@ -16,16 +16,18 @@ Sidney Lau: B.S. Computer Science and Engineering Major, Class of 2020, Universi
 
 # Set-Up
 This code was developed with Python 3.7.2
-This code is for the local version of ZotPonics. That means that the database is hosted locally with SQLITE. All the code this guide is referring to is in the `local_version` folder.
+This code is for the local version of ZotPonics. That means that the database is hosted locally with SQLITE. All the code for the local version referring to is in the `local_version` folder.
+
+The code for the non-local version is included in this root folder. It uses PythonAnywhere to store our database and manage our APIs. 
 
 Make sure that you have the following Python libraries installed:
 1. sqlite3
 2. Adafruit_DHT
-3. Flask
+3. Flask (Only needed for local version)
 
 Make sure you also set up the `zotponics.db` database (see below for more details)
 
-**Set up Flask**
+**Set up Flask (For running local version)**
 
 To get the Flask library run this in the terminal:
 ```
