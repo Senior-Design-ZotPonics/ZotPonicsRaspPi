@@ -72,7 +72,7 @@ def get_recentSensorData():
     hour = datetime.datetime.now().hour #returns hour in 24hr format int
     if (hour >= lightStartTime and hour < lightEndTime):
         lightOn = True
-    else if (lightStartTime > lightEndTime and (hour >= lightStartTime or hour < lightEndTime)):
+    elif (lightStartTime > lightEndTime and (hour >= lightStartTime or hour < lightEndTime)):
         lightOn = True
     else:
         lightOn = False
