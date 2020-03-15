@@ -343,7 +343,7 @@ class ZotPonics():
             if (not self.lightOn):
                 self.turnOnLight()
             self.lightOn = True
-        else if (self.lightStartTime > self.lightEndTime and (hour >= self.lightStartTime or hour < self.lightEndTime)):
+        elif (self.lightStartTime > self.lightEndTime and (hour >= self.lightStartTime or hour < self.lightEndTime)):
             if (not self.lightOn):
                 self.turnOnLight()
             self.lightOn = True
