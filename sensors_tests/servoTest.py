@@ -35,14 +35,6 @@ def ventMove(cycle):
     time.sleep(1)
     p.stop()
 
-def ventOff():
-    p=GPIO.PWM(servo,50)
-    p.start(2.5)
-    p.ChangeDutyCycle(12)
-    time.sleep(1)
-    p.stop()
-
-
 
 if __name__ == "__main__":
     try:

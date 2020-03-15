@@ -43,7 +43,7 @@ class ZotPonics():
 
         self.humidityMax = 80 #percentage
 
-        self.tempMax = 28 #Fahrenheit
+        self.tempMax = 28 #Celsius
 
         self.wateringFreq = 300 #seconds
         self.wateringDuration = 100 #seconds
@@ -101,9 +101,9 @@ class ZotPonics():
             self.dht11_sensor = Adafruit_DHT.DHT11
 
             #====Setup servo motor====
-            self.servo = GPIO.PWM(self.SERVO_PIN,50)
-            self.servo.start(2.5)
-            self.closeVent()
+            #self.servo = GPIO.PWM(self.SERVO_PIN,50)
+            #self.servo.start(2.5)
+            #self.closeVent()
 
     def run(self,simulateAll=False,temperSim=False,humidSim=False,baseLevelSim=False,plantHeightSim=False,demoMode=False):
         """
@@ -436,19 +436,29 @@ class ZotPonics():
         """
         GPIO.output(self.FAN_PIN, False)
 
+    def ventMove(self,cycle):
+        """
+        cylcle<int>: the duty cycle to specify the servo motor's position. 0 degrees = 3% duty cycle and 180 degrees = 12% duty cycle
+        """
+        p=GPIO.PWM(self.SERVO_PIN,50)
+        p.start(2.5)
+        p.ChangeDutyCycle(cycle)
+        time.sleep(1)
+        p.stop
+        
     def openVent(self):
         """
         Set servo to 180 degree to open vent
         Duty cycle for 180 degree = 12%
         """
-        self.servo.ChangeDutyCycle(12)
+        self.ventMove(12)
 
     def closeVent(self):
         """
         Set servo to 0 degree to close vent
         Duty cycle for 0 degree = 3%
         """
-        self.servo.ChangeDutyCycle(3)
+        self.ventMove(3)
 
     def dispenseWater(self):
         #spit out water
