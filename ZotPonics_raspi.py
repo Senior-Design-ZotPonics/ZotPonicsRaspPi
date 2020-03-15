@@ -340,11 +340,10 @@ class ZotPonics():
         #----Check hour and light control-------
         hour = datetime.datetime.now().hour #returns hour in 24hr format int
         if (hour >= self.lightStartTime and hour < self.lightEndTime):
-            if (not self.lightOn):
+            if not self.lightOn:
                 self.turnOnLight()
-            self.lightOn = True
         elif (self.lightStartTime > self.lightEndTime and (hour >= self.lightStartTime or hour < self.lightEndTime)):
-            if (not self.lightOn):
+            if not self.lightOn:
                 self.turnOnLight()
             self.lightOn = True
         else:
