@@ -1,4 +1,4 @@
-# ZotPonicsRaspPi Quick Start
+# ZotPonicsRaspPi Quick Start :herb:
 This is the code for the Raspberry Pi Systems Design portion of the Smart Hydroponics System, ZotPonics.
 
 ## Authors
@@ -9,7 +9,7 @@ This is the code for the Raspberry Pi Systems Design portion of the Smart Hydrop
 # Table of Contents
 1. [Set-Up](#set-up)
 2. [Running ZotPonics Raspberry Pi Code](#running-zotponics-raspberry-pi-code)
-3. [Testing](#testing)
+3. [Testing](#testing-the-apis)
 4. [Documentation on Important Functions](#documentation-on-important-functions)
 5. [Wiki](#wiki)
 
@@ -19,6 +19,7 @@ This code was developed with Python 3.7.2
 The code for the non-local version is included in this root folder. It uses PythonAnywhere to store our database and manage our APIs.
 
 **0. Run the Bash Script for Setup**
+
 There is a bash script that you can run to automatically set-up this repository. If you run it successfully, you can skip steps 1 and 2. To run the bash script open the terminal on the Raspberry Pi and run:
 ```
 ./setup.sh
