@@ -1,40 +1,29 @@
 # ZotPonicsRaspPi Quick Start
-This is the code for the raspberry pi systems designs of the Smart Hydroponics System, ZotPonics.
+This is the code for the Raspberry Pi Systems Design portion of the Smart Hydroponics System, ZotPonics.
+
 ## Authors
-Sidney Lau: B.S. Computer Science and Engineering Major, Class of 2020, University of California, Irvine
+[Sidney Lau](https://www.linkedin.com/in/sidney-lau/): B.S. Computer Science and Engineering Major, Class of 2020, University of California, Irvine
 
 [Owen Yang](https://www.linkedin.com/in/owen-yang-200989138/): B.S. Computer Science and Engineering Major, Class of 2020, University of California, Irvine
 *********************
-# Sections
+# Table of Contents
 1. [Set-Up](#set-up)
 2. [Running ZotPonics Raspberry Pi Code](#running-zotponics-raspberry-pi-code)
 3. [Testing](#testing)
 4. [Documentation on Important Functions](#documentation-on-important-functions)
 5. [Wiki](#wiki)
 
-
-
 # Set-Up
 This code was developed with Python 3.7.2
-This code is for the local version of ZotPonics. That means that the database is hosted locally with SQLITE. All the code for the local version referring to is in the `local_version` folder.
 
-The code for the non-local version is included in this root folder. It uses PythonAnywhere to store our database and manage our APIs. 
+The code for the non-local version is included in this root folder. It uses PythonAnywhere to store our database and manage our APIs.
 
-Make sure that you have the following Python libraries installed:
-1. sqlite3
-2. Adafruit_DHT
-3. Flask (Only needed for local version)
-
-Make sure you also set up the `zotponics.db` database (see below for more details)
-
-**Set up Flask (For running local version)**
-
-To get the Flask library run this in the terminal:
+There is a bash script that you can run to automatically set-up this repository. If you run it successfully, you can skip steps 1 and 2. To run the bash script open the terminal on the Raspberry Pi and run:
 ```
-pip install flask
+./setup.sh
 ```
 
-**Set up Adafruit_DHT11 (Temperature and Humidity Sensor)**
+**1. Set up Adafruit_DHT11 (Temperature and Humidity Sensor)**
 
 To get the Adafruit_DHT library run this in the terminal:
 ```
@@ -44,26 +33,44 @@ git clone https://github.com/adafruit/Adafruit_Python_DHT.git && cd Adafruit_Pyt
 sudo python setup.py install
 ```
 
-**Setting up PythonAnywhere**
+**2. Running the ZotPonics Code on Startup on the Raspberry Pi**
+
+To make the ZotPonics Code run when the Raspberry Pi is turned run this in the terminal:
+```
+mkdir /home/pi/.config/autostart
+cp zotponics.desktop /home/pi/.config/autostart/zotponics.desktop
+```
+
+The `zotponics.desktop` file is the main file used to make sure the program runs on startup.
+
+**3. Setting up PythonAnywhere**
 
 Python Anywhere is an online service where users can host their Python websites. We used Python Anywhere to host our API's.
 
-Please see the ZotPonics API Documentation for Set-up [here](https://github.com/Senior-Design-ZotPonics/ZotPonicsRaspPi/wiki/ZotPonics-API-Documentation)
+Please see the ZotPonics API Documentation for Set-up [here](https://github.com/Senior-Design-ZotPonics/ZotPonicsRaspPi/wiki/ZotPonics-API-Documentation#pythonanywhere-setup)
 
-**Deprecated Section**
-
-To set up the database locally, we use the files in the `local_version` folder. It uses sqlite3, a local database. You can run `userSimulate.py` to quickly set up the zotponics database with random values generated for the database [tables](wiki_content/database_relation.png): USERDEMO, and CONTROLFACTORS. The other tables, SENSOR_DATA and LAST_WATERED will be populated once you run `ZotPonics_raspi_sqlite_version.py`
-
+After setting up your Python Anywhere website. Make sure you change the `BASE_URL` global value in the `ZotPonics_raspi.py` file to your URL.
 
 # Running ZotPonics Raspberry Pi Code
-To run it on the Raspberry Pi just run the following command:
-```
-python3 ZotPonics_raspi_sqlite_version.py
-```
-# Testing
-For you can use the `userSimulate.py` file.
+If you set up running your code on start up, you can just reboot the Raspberry Pi and it should run on start up. You can use `htop` on the terminal to see if your code is running on startup.  
 
-There are two main functions you can use `randomUserInputFactor` and `UserActivateControl` to test pushing daata to the datbase.
+If you didn't set up running the code on start up run the following command in the terminal:
+```
+python3 ZotPonics_raspi.py
+```
+
+# Testing the API's
+For testing you can run the `pythonanywhereTest.py` script in the terminal:
+```
+python3 pythonanywhereTest.py
+```
+This script will run the `pythonanywhereTest.testAll` function to test the following API's:
+- add-sensor-data
+- add-lastwatered-data
+- usercontrolgrowth
+- userdemo
+
+*We have more documentation on other testing here: [ZotPonics-Testing-Verification](https://github.com/Senior-Design-ZotPonics/Documentation/wiki/ZotPonics-Testing-Verification)*
 
 # Documentation on Important Functions
 ### ZotPonics.run
@@ -79,8 +86,9 @@ This function helps run the main control block logic for your ZotPonics hydropon
 > **humidSim[bool]**: If True, just return 0.0 for the the humidity data.
 >
 > **baseLevelSim[bool]**: If True, just return 0.0 for the the base level data.
-
+>
 > ### Returns
+>
 > *None*
 
 ## userSimulate.randomUserInputFactor
@@ -111,8 +119,9 @@ This function is located in the `userSimulate.py` file. You can run the function
 > **water[int]**: default is 1 for convenience. Toggle between 0 or 1. 1 turns on the water pump, 0 keeps it off.
 >
 > **notify[int]**: default is 1 for convinience. Toggle between 0 or 1. 1 notifies the users, 0 doesn't send any notifications
-
+>
 > ### Returns
+>
 > *None*
 
 # Wiki
