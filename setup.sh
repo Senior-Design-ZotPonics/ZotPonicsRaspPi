@@ -4,9 +4,6 @@
 sudo apt-get install xterm -y
 
 echo Setting up running the program on startup.
-=======
-echo Setting up running the program on startup...
->>>>>>> b14321bbea118fd32fad6d56139bca1672c53731
 mkdir /home/pi/.config/autostart
 cp zotponics.desktop /home/pi/.config/autostart/zotponics.desktop
 echo Finished setting up running the program on startup completed.
