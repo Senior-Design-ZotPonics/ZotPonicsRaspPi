@@ -1,5 +1,4 @@
 #!/bin/bash
-<<<<<<< HEAD
 
 sudo apt-get install xterm -y
 
